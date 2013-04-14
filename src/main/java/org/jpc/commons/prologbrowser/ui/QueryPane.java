@@ -1,4 +1,4 @@
-package org.jpc.commons.ui;
+package org.jpc.commons.prologbrowser.ui;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -9,7 +9,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import org.jpc.util.concurrent.JpcExecutor;
-import org.minitoolbox.exception.NotImplementedException;
+import org.minitoolbox.exception.NotYetImplementedException;
 
 /**
  * This class is incomplete and ugly
@@ -48,7 +48,7 @@ public class QueryPane extends HBox {
 	}
 	
 	public void query(String query, JpcExecutor jpcExecutor) {
-		throw new NotImplementedException();
+		throw new NotYetImplementedException();
 	}
 	
 	public void enable() {

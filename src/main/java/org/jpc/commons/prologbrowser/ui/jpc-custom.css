@@ -1,0 +1,13 @@
+
+.root {
+
+}
+
+.jpc-query-browser {
+	-fx-background-color: #CAE1FF;
+}
+
+.jpc-title {
+	-fx-font-family: "Trebuchet MS";
+	-fx-text-fill: dimgrey;
+}
