@@ -1,7 +1,7 @@
 package org.jpc.commons.prologbrowser.ui;
 
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_CONTAINER;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_GRID;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CONTAINER;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -82,12 +82,12 @@ public class AboutDriverPane extends VBox {
 	
 	private void style() {
 		gridPane.getStyleClass().addAll(JPC_GRID, JPC_CONTAINER);
-		libraryNameLabel.getStyleClass().add(JpcLayout.DRIVER_NAME_LABEL);
-		descriptionLabel.getStyleClass().add(JpcLayout.DRIVER_DESCRIPTION_LABEL);
-		footer.getStyleClass().add(JpcLayout.ABOUT_DRIVER_FOOTER);
-		licenseLink.getStyleClass().add(JpcLayout.ABOUT_DRIVER_FOOTER_LINK);
-		websiteLink.getStyleClass().add(JpcLayout.ABOUT_DRIVER_FOOTER_LINK);
-		getStylesheets().add(JpcLayout.class.getResource(JpcLayout.JPC_CSS_FILE_NAME).toExternalForm());
+		libraryNameLabel.getStyleClass().add(JpcCss.DRIVER_NAME_LABEL);
+		descriptionLabel.getStyleClass().add(JpcCss.DRIVER_DESCRIPTION_LABEL);
+		footer.getStyleClass().add(JpcCss.ABOUT_DRIVER_FOOTER);
+		licenseLink.getStyleClass().add(JpcCss.ABOUT_DRIVER_FOOTER_LINK);
+		websiteLink.getStyleClass().add(JpcCss.ABOUT_DRIVER_FOOTER_LINK);
+		getStylesheets().add(JpcCss.class.getResource(JpcCss.JPC_CSS_FILE_NAME).toExternalForm());
 	}
 	
 }

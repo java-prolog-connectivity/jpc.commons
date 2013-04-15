@@ -1,9 +1,9 @@
 package org.jpc.commons.prologbrowser.ui;
 
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_CSS_FILE_NAME;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_GRID;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_LIST;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_LIST_LABEL;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_LIST;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_LIST_LABEL;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_HEIGHT_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_WIDTH_LIST;
 import javafx.geometry.Pos;
@@ -25,7 +25,7 @@ public class PrologEngineChoicePane extends GridPane {
 	public PrologEngineChoicePane() {
 		draw();
 		model = new PrologEngineChoiceModel(prologEngines.selectionModelProperty());
-		prologEngines.setItems(model.getPrologEngines());
+		prologEngines.setItems(model.getPrologEnginesList());
 		style();
 	}
 	
@@ -38,7 +38,7 @@ public class PrologEngineChoicePane extends GridPane {
 		engineInstanceLabel.getStyleClass().add(JPC_LIST_LABEL);
 		prologEngines.getStyleClass().add(JPC_LIST);
 		prologEngines.setPrefSize(JPC_PREFERRED_WIDTH_LIST, JPC_PREFERRED_HEIGHT_LIST);
-		getStylesheets().add(JpcLayout.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
+		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 	
 	private void draw() {

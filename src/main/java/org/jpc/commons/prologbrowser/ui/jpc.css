@@ -35,12 +35,14 @@
 	*/
 }
 
+
+.jpc-button-pane {
+	-fx-spacing: 8;
+}
+
 .jpc-button {
 	-fx-effect: dropshadow( one-pass-box , black , 8 , 0.0 , 2 , 0 );
 }
-
-
-
 
 
 .jpc-about-driver-footer {
@@ -70,5 +72,5 @@
 
 
 .jpc-query-browser-launcher {
-	-fx-background-color: lavender;
+	-fx-background-color: aliceblue;
 }

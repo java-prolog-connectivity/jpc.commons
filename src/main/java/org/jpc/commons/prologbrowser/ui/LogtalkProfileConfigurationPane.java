@@ -1,7 +1,7 @@
 package org.jpc.commons.prologbrowser.ui;
 
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_CSS_FILE_NAME;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_GRID;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.GridPane;
 
@@ -28,7 +28,7 @@ public class LogtalkProfileConfigurationPane extends GridPane  {
 	
 	private void style() {
 		getStyleClass().add(JPC_GRID);
-		getStylesheets().add(JpcLayout.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
+		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 
 }

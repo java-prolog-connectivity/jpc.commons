@@ -1,11 +1,11 @@
 package org.jpc.commons.prologbrowser.ui;
 
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_CUSTOM_CSS_FILE_NAME;
 import javafx.application.Application;
-import javafx.scene.Scene;
+import javafx.event.EventHandler;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 
 /**
  * An alternative to the QueryBrowserApp application
@@ -16,14 +16,26 @@ import javafx.stage.Window;
  */
 public class QueryBrowserStage extends Stage {
 
+	private QueryBrowserScene scene;
+	
 	public QueryBrowserStage(Window owner, Application app) {
+		
 		initOwner(owner);
 		initModality(Modality.NONE);
 		setTitle("Query Browser");
-		Scene scene = new QueryBrowserScene(app, null);
-		scene.getStylesheets().add(JpcLayout.class.getResource(JPC_CUSTOM_CSS_FILE_NAME).toExternalForm());
+		scene = new QueryBrowserScene(app, null);
 		//ScenicView.show(scene);
 		setScene(scene);
+		this.setOnCloseRequest(new EventHandler<WindowEvent>() {
+		      @Override 
+		      public void handle(WindowEvent e) {
+		    	  scene.stop();
+		      }
+		});
+	}
+	
+	public void addStyle(String style) {
+		scene.getStylesheets().add(style);
 	}
 	
 }

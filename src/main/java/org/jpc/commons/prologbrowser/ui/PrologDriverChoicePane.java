@@ -1,9 +1,9 @@
 package org.jpc.commons.prologbrowser.ui;
 
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_CSS_FILE_NAME;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_GRID;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_LIST;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_LIST_LABEL;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_LIST;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_LIST_LABEL;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_HEIGHT_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_WIDTH_LIST;
 import javafx.application.Application;
@@ -44,7 +44,7 @@ public class PrologDriverChoicePane extends GridPane {
 		model = new PrologDriverChoiceModel(drivers, engineTypes.selectionModelProperty(), prologDrivers.selectionModelProperty());
 		engineTypes.setItems(model.getEnginesNames());
 		prologDrivers.setItems(model.getFilteredDrivers());
-		model.selectFirst();
+		//model.selectFirst(); //it is not a good idea to select the first here, since some state listeners may have not been added yet (e.g., a button for starting a Prolog engine)
 		style();
 	}
 
@@ -62,7 +62,7 @@ public class PrologDriverChoicePane extends GridPane {
 		prologDriversLabel.getStyleClass().add(JPC_LIST_LABEL);
 		prologDrivers.getStyleClass().add(JPC_LIST);
 		prologDrivers.setPrefSize(JPC_PREFERRED_WIDTH_LIST, JPC_PREFERRED_HEIGHT_LIST);
-		getStylesheets().add(JpcLayout.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
+		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 	
 	private void draw() {

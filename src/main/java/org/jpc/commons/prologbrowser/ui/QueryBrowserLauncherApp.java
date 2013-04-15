@@ -1,9 +1,10 @@
 package org.jpc.commons.prologbrowser.ui;
 
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_BUTTON;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_CONTAINER;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_CSS_FILE_NAME;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_QUERY_BROWSER_LAUNCHER;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CONTAINER;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CUSTOM_CSS_FILE_NAME;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_QUERY_BROWSER_LAUNCHER;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -26,7 +27,6 @@ public class QueryBrowserLauncherApp extends Application {
 		launcherPane = new HBox();
 		launcherPane.setPrefWidth(250);
 		launcherPane.setAlignment(Pos.CENTER);
-		//launchButton = new Button("Launch Query Browser");
 		launchButton = new Button("Launch");
 		launcherPane.getChildren().add(launchButton);
 		scene = new Scene(launcherPane);
@@ -36,6 +36,7 @@ public class QueryBrowserLauncherApp extends Application {
 		    public void handle(ActionEvent e) {
 		    	Window owner = scene.getWindow();
 		    	QueryBrowserStage queryBrowser = new QueryBrowserStage(owner, QueryBrowserLauncherApp.this);
+		    	queryBrowser.addStyle(JpcCss.class.getResource(JPC_CUSTOM_CSS_FILE_NAME).toExternalForm());
 		    	queryBrowser.show();
 		    }
 		});
@@ -47,7 +48,8 @@ public class QueryBrowserLauncherApp extends Application {
 	private void style() {
 		launcherPane.getStyleClass().addAll(JPC_QUERY_BROWSER_LAUNCHER, JPC_CONTAINER);
 		launchButton.getStyleClass().add(JPC_BUTTON);
-		launcherPane.getStylesheets().add(JpcLayout.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
+		launcherPane.getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
+		//launcherPane.getStylesheets().add(JpcLayout.class.getResource(JPC_CUSTOM_CSS_FILE_NAME).toExternalForm());
 	}
 	
 	public static void main(String[] args) {
