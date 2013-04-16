@@ -3,7 +3,6 @@ package org.jpc.commons.prologbrowser.ui;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON_PANE;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_BUTTON_PROGRESS_INDICATOR;
 
 import java.util.concurrent.Executor;
 
@@ -14,7 +13,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.HBox;
 
 import org.jpc.commons.prologbrowser.model.ShutdownPrologEngineModel;
@@ -25,7 +23,6 @@ public class ShutdownPrologEnginePane extends HBox {
 
 	private ShutdownPrologEngineModel model;
 	private Button shutdownEngineButton;
-	private ProgressIndicator progress;
 	private Executor executor;
 	
 	public ShutdownPrologEnginePane(PrologEngineProvider prologEngineProvider, 
@@ -41,14 +38,11 @@ public class ShutdownPrologEnginePane extends HBox {
 			shutdownEngineButton.disableProperty().bind(Bindings.not(enabled));
 		
 		model = new ShutdownPrologEngineModel(prologEngineProvider, prologEngineShutdownListener);
-		progress = new ProgressIndicator();
-		progress.setPrefSize(JPC_BUTTON_PROGRESS_INDICATOR, JPC_BUTTON_PROGRESS_INDICATOR);
-		progress.setVisible(false);
 		
 		shutdownEngineButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				progress.setVisible(true);
+				//TODO NOTIFY START HERE
 				executor.execute(new Runnable() {
 					@Override
 					public void run() {
@@ -63,7 +57,7 @@ public class ShutdownPrologEnginePane extends HBox {
 							Platform.runLater(new Runnable() {
 								@Override
 								public void run() {
-									progress.setVisible(false);
+									//TODO NOTIFY STOP HERE
 								}
 							});
 						}
@@ -71,7 +65,7 @@ public class ShutdownPrologEnginePane extends HBox {
 				});
 			}
 		});
-		getChildren().addAll(progress, shutdownEngineButton);
+		getChildren().addAll(shutdownEngineButton);
 		style();
 	}
 	

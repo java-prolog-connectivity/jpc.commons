@@ -1,44 +1,57 @@
 package org.jpc.commons.prologbrowser.ui;
 
+import java.util.concurrent.Executor;
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
 
-import org.jpc.util.concurrent.JpcExecutor;
-import org.minitoolbox.exception.NotYetImplementedException;
+import org.jpc.engine.provider.PrologEngineProvider;
 
 /**
- * This class is incomplete and ugly
  * @author sergioc
  *
  */
-public class QueryPane extends HBox {
+public class QueryPane extends VBox {
 	
-	public final TextArea queryText;
-	private final Button nextSolutionButton;
-	public final Button allSolutionsButton;
-	private final Button clearTextButton;
+	private PrologEngineProvider prologEngineProvider;
+	private Executor executor;
 	
-	public QueryPane() {
-		setSpacing(10);
-		getChildren().add(new Text("Query:"));
-		queryText = new TextArea();
+	private Label queryLabel;
+	private TextArea queryTextArea;
+	
+	private Button nextSolutionButton;
+	public Button allSolutionsButton;
+	private Button stopQueryButton;
+	
+	private Button copyToClipboardButton;
+	private Button clearTextButton;
+	
+
+	public QueryPane(PrologEngineProvider prologEngineProvider, BooleanProperty prologEngineAvailable, Executor executor) {
+		this.prologEngineProvider = prologEngineProvider;
+		draw();
+		if(prologEngineAvailable != null) {
+			nextSolutionButton.disableProperty().bind(Bindings.not(prologEngineAvailable));
+		}
+	}
+	
+	private void draw() {
+		queryTextArea = new TextArea();
 		VBox vBoxSecondColumn = new VBox();
-		vBoxSecondColumn.getChildren().add(queryText);
+		vBoxSecondColumn.getChildren().add(queryTextArea);
 		nextSolutionButton = new Button("Next");
 		allSolutionsButton = new Button("All Solutions");
 		clearTextButton = new Button("Clear");
 		
-		clearTextButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent arg0) {
-				queryText.setText("");
-			}
-		});
 		HBox hBoxButtons = new HBox();
 		hBoxButtons.setSpacing(10);
 		//hBoxButtons.getChildren().addAll(nextSolutionButton, allSolutionsButton, clearTextButton);
@@ -46,21 +59,25 @@ public class QueryPane extends HBox {
 		vBoxSecondColumn.getChildren().add(hBoxButtons);
 		getChildren().add(vBoxSecondColumn);
 	}
-	
-	public void query(String query, JpcExecutor jpcExecutor) {
-		throw new NotYetImplementedException();
-	}
-	
-	public void enable() {
-		queryText.setDisable(false);
-		nextSolutionButton.setDisable(false);
-		clearTextButton.setDisable(false);
-	}
-	
-	public void disable() {
-		queryText.setDisable(true);
-		nextSolutionButton.setDisable(true);
-		clearTextButton.setDisable(true);
+
+	private void addListeners() {
+		clearTextButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				queryTextArea.setText("");
+			}
+		});
+		
+		copyToClipboardButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				String queryText = queryTextArea.getText();
+				Clipboard clipboard = Clipboard.getSystemClipboard();
+				ClipboardContent content = new ClipboardContent();
+			    content.putString(queryText);
+			    clipboard.setContent(content);
+			}
+		});
 	}
 
 }

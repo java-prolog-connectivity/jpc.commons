@@ -3,7 +3,7 @@ package org.jpc.commons.prologbrowser.ui;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON_PANE;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_BUTTON_PROGRESS_INDICATOR;
+import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_BUTTON_PROGRESS_INDICATOR_SIZE;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -27,7 +27,6 @@ import org.jpc.engine.provider.PrologEngineProvider;
 public class LogtalkLoadPane extends HBox {
 
 	private Button logtalkLoadButton;
-	private ProgressIndicator progress;
 	private Executor executor;
 	
 	public LogtalkLoadPane(final PrologEngineProvider prologEngineProvider, 
@@ -42,10 +41,6 @@ public class LogtalkLoadPane extends HBox {
 		if(enabled != null)
 			logtalkLoadButton.disableProperty().bind(Bindings.not(enabled));
 		
-		progress = new ProgressIndicator();
-		progress.setPrefSize(JPC_BUTTON_PROGRESS_INDICATOR, JPC_BUTTON_PROGRESS_INDICATOR);
-		progress.setVisible(false);
-		
 		logtalkLoadButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -57,7 +52,7 @@ public class LogtalkLoadPane extends HBox {
 				File selectedFile = fc.showOpenDialog(LogtalkLoadPane.this.getScene().getWindow());
 				if(selectedFile != null) {
 					final String fileName = selectedFile.getAbsolutePath();
-					progress.setVisible(true);
+					//TODO NOTIFY START HERE
 					executor.execute(new Runnable() {
 						@Override
 						public void run() {
@@ -69,7 +64,7 @@ public class LogtalkLoadPane extends HBox {
 								Platform.runLater(new Runnable() {
 									@Override
 									public void run() {
-										progress.setVisible(false);
+										//TODO NOTIFY STOP HERE
 									}
 								});
 							}
@@ -79,7 +74,7 @@ public class LogtalkLoadPane extends HBox {
 				
 			}
 		});
-		getChildren().addAll(progress, logtalkLoadButton);
+		getChildren().addAll(logtalkLoadButton);
 		style();
 	}
 	

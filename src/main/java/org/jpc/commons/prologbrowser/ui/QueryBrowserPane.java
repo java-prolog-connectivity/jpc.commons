@@ -9,14 +9,12 @@ import static org.jpc.commons.prologbrowser.ui.JpcLayout.DISOLVING_PANE_ANIMATIO
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 import org.jpc.commons.prologbrowser.model.DriverAvailabilityStartButtonManager;
 import org.jpc.commons.prologbrowser.model.EngineAvailabilityShutdownButtonManager;
@@ -34,6 +32,9 @@ public class QueryBrowserPane extends VBox {
 	
 	private Hyperlink fileLoadingTitle;
 	private GridPane fileLoadingPane;
+	
+	private Hyperlink queryTitle;
+	private GridPane queryPane;
 	
 	private Application app;
 	private Iterable<PrologEngineDriver> drivers;
@@ -68,7 +69,18 @@ public class QueryBrowserPane extends VBox {
             }
         });
 		
-		getChildren().addAll(logicConsoleTitle, logicConsolePane, fileLoadingTitle, fileLoadingPane);
+		queryTitle = new Hyperlink("Query");
+		queryPane = createQueryPane();
+		queryPane.managedProperty().bind(queryPane.visibleProperty());
+		queryTitle.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent e) {
+            	FXUtility.toggleNode(queryPane, DISOLVING_PANE_ANIMATION_MILLIS);
+            }
+        });
+		
+		
+		getChildren().addAll(logicConsoleTitle, logicConsolePane, fileLoadingTitle, fileLoadingPane, queryTitle, queryPane);
 		this.setSpacing(10);
 		setFocusTraversable(true);
 		requestFocus();
@@ -114,6 +126,10 @@ public class QueryBrowserPane extends VBox {
 		return pane;
 	}
 	
+	private GridPane createQueryPane() {
+		GridPane pane = new GridPane();
+		return pane;
+	}
 	
 	public void stop() {
 		prologEngineOrganizer.shutdownAll();
@@ -126,6 +142,8 @@ public class QueryBrowserPane extends VBox {
 		logicConsolePane.getStyleClass().addAll(JPC_GRID);
 		fileLoadingTitle.getStyleClass().add(JPC_TITLE);
 		fileLoadingPane.getStyleClass().addAll(JPC_GRID);
+		queryTitle.getStyleClass().add(JPC_TITLE);
+		queryPane.getStyleClass().addAll(JPC_GRID);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 

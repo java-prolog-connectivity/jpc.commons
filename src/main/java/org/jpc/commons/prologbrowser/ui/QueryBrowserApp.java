@@ -3,8 +3,6 @@ package org.jpc.commons.prologbrowser.ui;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-import com.javafx.experiments.scenicview.ScenicView;
-
 public class QueryBrowserApp extends Application {
 
 	private QueryBrowserScene scene;
@@ -27,4 +25,5 @@ public class QueryBrowserApp extends Application {
 	public void stop() {
 		scene.stop();
 	}
+
 }

@@ -3,7 +3,6 @@ package org.jpc.commons.prologbrowser.ui;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON_PANE;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_BUTTON_PROGRESS_INDICATOR;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -15,7 +14,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -26,7 +24,6 @@ import org.jpc.engine.provider.PrologEngineProvider;
 public class EnsureLoadedPane extends HBox {
 
 	private Button ensureLoadedButton;
-	private ProgressIndicator progress;
 	private Executor executor;
 	
 	public EnsureLoadedPane(final PrologEngineProvider prologEngineProvider, 
@@ -41,10 +38,6 @@ public class EnsureLoadedPane extends HBox {
 		if(enabled != null)
 			ensureLoadedButton.disableProperty().bind(Bindings.not(enabled));
 		
-		progress = new ProgressIndicator();
-		progress.setPrefSize(JPC_BUTTON_PROGRESS_INDICATOR, JPC_BUTTON_PROGRESS_INDICATOR);
-		progress.setVisible(false);
-		
 		ensureLoadedButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -56,7 +49,7 @@ public class EnsureLoadedPane extends HBox {
 				File selectedFile = fc.showOpenDialog(EnsureLoadedPane.this.getScene().getWindow());
 				if(selectedFile != null) {
 					final String fileName = selectedFile.getAbsolutePath();
-					progress.setVisible(true);
+					//TODO NOTIFY START HERE
 					executor.execute(new Runnable() {
 						@Override
 						public void run() {
@@ -68,7 +61,7 @@ public class EnsureLoadedPane extends HBox {
 								Platform.runLater(new Runnable() {
 									@Override
 									public void run() {
-										progress.setVisible(false);
+										//TODO NOTIFY STOP HERE
 									}
 								});
 							}
@@ -78,7 +71,7 @@ public class EnsureLoadedPane extends HBox {
 				
 			}
 		});
-		getChildren().addAll(progress, ensureLoadedButton);
+		getChildren().addAll(ensureLoadedButton);
 		style();
 	}
 	
