@@ -35,7 +35,6 @@ public class ShutdownPrologEnginePane extends HBox {
 		
 		setMaxWidth(Double.MAX_VALUE);
 		setAlignment(Pos.CENTER_RIGHT);
-		//executor = Executors.newSingleThreadExecutor();
 		this.executor = executor;
 		shutdownEngineButton = new Button("Shutdown");
 		if(enabled != null)

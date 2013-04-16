@@ -8,6 +8,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -78,6 +79,8 @@ public class AboutDriverPane extends VBox {
 		getChildren().addAll(gridPane, footer);
 		
 		style();
+		setFocusTraversable(true);
+		requestFocus();
 	}
 	
 	private void style() {

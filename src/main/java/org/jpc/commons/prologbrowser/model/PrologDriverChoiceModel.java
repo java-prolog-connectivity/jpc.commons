@@ -91,12 +91,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 		getPrologEngineDriversSelectionModel().selectedItemProperty().addListener(new ChangeListener<PrologEngineDriver>() {
 			@Override
 			public void changed(ObservableValue<? extends PrologEngineDriver> observable, PrologEngineDriver oldDriver, PrologEngineDriver newDriver) {
-				if(newDriver == null) {
-					notifyDriverInvalidated();
-				} else if(!newDriver.equals(oldDriver)) {
-					if(newDriver.isEnabled()) {
-					} else {
-					}
+				if(newDriver == null || !newDriver.equals(oldDriver)) {
 					notifyDriverInvalidated();
 				}
 			}

@@ -37,7 +37,6 @@ public class StartPrologEnginePane extends HBox {
 		
 		setMaxWidth(Double.MAX_VALUE);
 		setAlignment(Pos.CENTER_RIGHT);
-		//executor = Executors.newSingleThreadExecutor();
 		this.executor = executor;
 		startEngineButton = new Button("Start");
 		if(enabled != null)

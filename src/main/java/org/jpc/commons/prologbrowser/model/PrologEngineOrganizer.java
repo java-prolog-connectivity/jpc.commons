@@ -68,10 +68,8 @@ public class PrologEngineOrganizer implements PrologEngineFactoryInvalidatedList
 		driverMap.put(driver, selectedDriverPrologEngines);
 		currentDriver = driver;
 		
-		if(prologEngineSelectionModelProperty.get().getSelectedItems().isEmpty()) { //no Prolog engine selected
-			if(!prologEngines.isEmpty()) //there are elements in the list
-				prologEngineSelectionModelProperty.get().select(0);
-		}
+		if(!prologEngines.isEmpty()) //there are elements in the list
+			prologEngineSelectionModelProperty.get().select(0);
 	}
 	
 	private void resetDriverSelection() {

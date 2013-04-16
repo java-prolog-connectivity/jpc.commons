@@ -11,7 +11,16 @@
 .jpc-title {
 	-fx-font-size: 15pt;
 	-fx-font-weight: bold;
+	-fx-underline: false;
 }
+
+.jpc-title:visited {
+	/*
+	 * To avoid changing the color when the title link has been visited
+	 */
+    -fx-text-fill: -fx-text-background-color;
+}
+
 
 .jpc-grid {
     -fx-hgap: 15;
@@ -55,6 +64,7 @@
 	-fx-text-fill: darkblue;
 	-fx-font-size: 11pt;
 }
+
 
 .jpc-driver-name-label {
 	-fx-font: bold 30pt "Trebuchet MS";
