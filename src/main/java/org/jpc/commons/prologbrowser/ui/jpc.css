@@ -44,8 +44,18 @@
 	*/
 }
 
+.jpc-toolbar {
+	-fx-spacing: 10;
+}
 
-.jpc-button-pane {
+.jpc-toolbar-group-pane {
+	-fx-spacing: 2;
+}
+
+/**
+ * TODO delete?
+ */
+.jpc-prolog-engine-item {
 	-fx-spacing: 8;
 }
 

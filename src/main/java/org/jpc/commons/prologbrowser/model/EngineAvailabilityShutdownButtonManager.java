@@ -4,7 +4,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import org.jpc.engine.prolog.PrologEngine;
-import org.minitoolbox.fx.FXUtility;
+import org.minitoolbox.fx.FXUtil;
 
 /**
  * A life cycle manager for the shutdown engine button based on an engine availability
@@ -19,7 +19,7 @@ public class EngineAvailabilityShutdownButtonManager implements PrologEngineInva
 	public EngineAvailabilityShutdownButtonManager(PrologEngineChoiceModel engineChoiceModel) {
 		enabled = new SimpleBooleanProperty();
 		this.engineChoiceModel = engineChoiceModel;
-		engineChoiceModel.addEngineSelectionObserver(this);
+		engineChoiceModel.addEngineSelectionListener(this);
 	}
 	
 	public BooleanProperty enabledProperty() {
@@ -28,7 +28,7 @@ public class EngineAvailabilityShutdownButtonManager implements PrologEngineInva
 
 	@Override
 	public void onPrologEngineInvalidated() {
-		FXUtility.runInFXApplicationThread(new Runnable() {
+		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
 				PrologEngine prologEngine = engineChoiceModel.getPrologEngine();

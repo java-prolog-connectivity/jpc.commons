@@ -14,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import org.jpc.commons.prologbrowser.model.DriverAvailabilityStartButtonManager;
@@ -23,18 +24,18 @@ import org.jpc.commons.prologbrowser.model.PrologDriverChoiceModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineChoiceModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineOrganizer;
 import org.jpc.engine.prolog.driver.PrologEngineDriver;
-import org.minitoolbox.fx.FXUtility;
+import org.minitoolbox.fx.FXUtil;
 
 public class QueryBrowserPane extends VBox {
 
 	private Hyperlink logicConsoleTitle;
-	private GridPane logicConsolePane;
+	private Pane logicConsolePane;
 	
 	private Hyperlink fileLoadingTitle;
-	private GridPane fileLoadingPane;
+	private Pane fileLoadingPane;
 	
 	private Hyperlink queryTitle;
-	private GridPane queryPane;
+	private Pane queryPane;
 	
 	private Application app;
 	private Iterable<PrologEngineDriver> drivers;
@@ -55,7 +56,7 @@ public class QueryBrowserPane extends VBox {
 		logicConsoleTitle.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-            	FXUtility.toggleNode(logicConsolePane, DISOLVING_PANE_ANIMATION_MILLIS);
+            	FXUtil.toggleNode(logicConsolePane, DISOLVING_PANE_ANIMATION_MILLIS);
             }
         });
 		
@@ -65,7 +66,7 @@ public class QueryBrowserPane extends VBox {
 		fileLoadingTitle.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-            	FXUtility.toggleNode(fileLoadingPane, DISOLVING_PANE_ANIMATION_MILLIS);
+            	FXUtil.toggleNode(fileLoadingPane, DISOLVING_PANE_ANIMATION_MILLIS);
             }
         });
 		
@@ -75,10 +76,9 @@ public class QueryBrowserPane extends VBox {
 		queryTitle.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-            	FXUtility.toggleNode(queryPane, DISOLVING_PANE_ANIMATION_MILLIS);
+            	FXUtil.toggleNode(queryPane, DISOLVING_PANE_ANIMATION_MILLIS);
             }
         });
-		
 		
 		getChildren().addAll(logicConsoleTitle, logicConsolePane, fileLoadingTitle, fileLoadingPane, queryTitle, queryPane);
 		this.setSpacing(10);
@@ -87,23 +87,23 @@ public class QueryBrowserPane extends VBox {
 		style();
 	}
 	
-	private GridPane createLogicConsolePane() {
+	private Pane createLogicConsolePane() {
+		executor = Executors.newSingleThreadExecutor();
 		PrologDriverChoicePane driverChooserPane = new PrologDriverChoicePane(app, drivers);
 		PrologDriverChoiceModel driverChoiceModel = driverChooserPane.getModel();
 		LogtalkProfileConfigurationPane profileConfigurationPane = new LogtalkProfileConfigurationPane(driverChoiceModel);
 		LogtalkProfileConfigurationModel profileConfigurationModel = profileConfigurationPane.getModel();
-		PrologEngineChoicePane prologEngineChoicePane = new PrologEngineChoicePane();
+		PrologEngineChoicePane prologEngineChoicePane = new PrologEngineChoicePane(profileConfigurationModel, executor);
 		prologEngineChoiceModel = prologEngineChoicePane.getModel();
 		prologEngineOrganizer = new PrologEngineOrganizer(prologEngineChoiceModel, driverChoiceModel); //will register itself as an observer of the driver choice model
 		
-		executor = Executors.newSingleThreadExecutor();
+		
 		DriverAvailabilityStartButtonManager startButtonLifeCycleManager = new DriverAvailabilityStartButtonManager(driverChoiceModel);
-		StartPrologEnginePane startPrologEnginePane = new StartPrologEnginePane(profileConfigurationModel, 
-				prologEngineChoiceModel, startButtonLifeCycleManager.enabledProperty(), executor);
+		StartPrologEnginePane startPrologEnginePane = new StartPrologEnginePane(prologEngineChoiceModel, null, startButtonLifeCycleManager.enabledProperty());
 		
 		EngineAvailabilityShutdownButtonManager shutdownButtonLifeCycleManager = new EngineAvailabilityShutdownButtonManager(prologEngineChoiceModel);
 		ShutdownPrologEnginePane shutdownPrologEnginePane = new ShutdownPrologEnginePane(prologEngineChoiceModel, 
-				prologEngineChoiceModel, shutdownButtonLifeCycleManager.enabledProperty(), executor);
+				prologEngineChoiceModel, null, shutdownButtonLifeCycleManager.enabledProperty(), executor);
 		
 		driverChoiceModel.selectFirst();
 		
@@ -117,7 +117,7 @@ public class QueryBrowserPane extends VBox {
 		return pane;
 	}
 	
-	private GridPane createFileLoadingPane() {
+	private Pane createFileLoadingPane() {
 		LogtalkLoadPane logtalkLoadPane = new LogtalkLoadPane(prologEngineChoiceModel, prologEngineChoiceModel.prologEngineSelectedProperty(), executor);
 		EnsureLoadedPane ensureLoadedPane = new EnsureLoadedPane(prologEngineChoiceModel, prologEngineChoiceModel.prologEngineSelectedProperty(), executor);
 		GridPane pane = new GridPane();
@@ -126,8 +126,8 @@ public class QueryBrowserPane extends VBox {
 		return pane;
 	}
 	
-	private GridPane createQueryPane() {
-		GridPane pane = new GridPane();
+	private Pane createQueryPane() {
+		Pane pane = new QueryPane(executor);
 		return pane;
 	}
 	

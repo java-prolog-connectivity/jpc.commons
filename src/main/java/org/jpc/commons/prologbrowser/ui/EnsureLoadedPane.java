@@ -1,7 +1,6 @@
 package org.jpc.commons.prologbrowser.ui;
 
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON;
-import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_BUTTON_PANE;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
 
 import java.io.File;
@@ -18,21 +17,20 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
+import org.jpc.commons.prologbrowser.model.PrologEngineModel;
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.provider.PrologEngineProvider;
 
 public class EnsureLoadedPane extends HBox {
 
 	private Button ensureLoadedButton;
-	private Executor executor;
 	
-	public EnsureLoadedPane(final PrologEngineProvider prologEngineProvider, 
+	public EnsureLoadedPane(final PrologEngineProvider<PrologEngineModel> prologEngineProvider, 
 			BooleanProperty enabled,
 			final Executor executor) {
 		
 		setMaxWidth(Double.MAX_VALUE);
 		setAlignment(Pos.CENTER_RIGHT);
-		this.executor = executor;
 		ensureLoadedButton = new Button("Ensure Loaded");
 		
 		if(enabled != null)
@@ -77,7 +75,6 @@ public class EnsureLoadedPane extends HBox {
 	
 	private void style() {
 		ensureLoadedButton.getStyleClass().add(JPC_BUTTON);
-		getStyleClass().add(JPC_BUTTON_PANE);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 }

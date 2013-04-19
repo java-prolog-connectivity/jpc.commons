@@ -13,12 +13,13 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.MultipleSelectionModel;
 
 import org.jpc.engine.listener.DriverStateListener;
+import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineDriver;
 import org.jpc.engine.provider.PrologEngineFactoryProvider;
 import org.jpc.util.DriverUtil;
 import org.jpc.util.naming.NamingUtil;
 import org.minitoolbox.CollectionsUtil;
-import org.minitoolbox.fx.FXUtility;
+import org.minitoolbox.fx.FXUtil;
 
 import com.google.common.collect.Multimap;
 
@@ -27,7 +28,7 @@ import com.google.common.collect.Multimap;
  * @author sergioc
  *
  */
-public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<PrologEngineDriver>, DriverStateListener {
+public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<PrologEngine>, DriverStateListener {
 
 	private ObjectProperty<MultipleSelectionModel<String>> prologEngineTypesSelectionModelProperty;
 	private ObjectProperty<MultipleSelectionModel<PrologEngineDriver>> prologEngineDriversSelectionModelProperty;
@@ -160,7 +161,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 	
 	@Override
 	public void onDriverDisabled() {
-		FXUtility.runInFXApplicationThread(new Runnable() {
+		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
 				PrologEngineDriver selectedDriver = getPrologEngineFactory();

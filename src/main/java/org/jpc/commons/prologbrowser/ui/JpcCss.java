@@ -20,7 +20,9 @@ public class JpcCss {
 	public static final String JPC_TITLE = "jpc-title";
 	public static final String JPC_LIST = "jpc-list";
 	public static final String JPC_LIST_LABEL = "jpc-list-label";
-	public static final String JPC_BUTTON_PANE = "jpc-button-pane";
+	public static final String JPC_PROLOG_ENGINE_ITEM = "jpc-prolog-engine-item";
+	public static final String JPC_TOOLBAR = "jpc-toolbar";
+	public static final String JPC_TOOLBAR_GROUP_PANE = "jpc-toolbar-group-pane";
 	public static final String JPC_BUTTON = "jpc-button";
 	
 	

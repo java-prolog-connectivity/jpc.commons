@@ -1,20 +1,27 @@
 package org.jpc.commons.prologbrowser.ui;
 
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TOOLBAR;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TOOLBAR_GROUP_PANE;
+import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_QUERY_HISTORY_PREFERRED_WIDTH;
+
 import java.util.concurrent.Executor;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import org.jpc.engine.provider.PrologEngineProvider;
+import org.jpc.commons.prologbrowser.model.QueryModel;
 
 /**
  * @author sergioc
@@ -22,45 +29,139 @@ import org.jpc.engine.provider.PrologEngineProvider;
  */
 public class QueryPane extends VBox {
 	
-	private PrologEngineProvider prologEngineProvider;
-	private Executor executor;
 	
-	private Label queryLabel;
+	private Executor executor;
+	private QueryModel model;
+	
+	
 	private TextArea queryTextArea;
 	
+	private ToolBar allButtonsPane;
+	private ComboBox<String> history;
+	
+	private HBox queryButtonsPane;
 	private Button nextSolutionButton;
 	public Button allSolutionsButton;
-	private Button stopQueryButton;
+	private Button cancelQueryButton; //if there is an executing query aborts it
 	
+	private HBox editionButtonsPane;
 	private Button copyToClipboardButton;
 	private Button clearTextButton;
 	
-
-	public QueryPane(PrologEngineProvider prologEngineProvider, BooleanProperty prologEngineAvailable, Executor executor) {
-		this.prologEngineProvider = prologEngineProvider;
+	
+	public QueryPane(Executor executor) {
+		this.executor = executor;
 		draw();
-		if(prologEngineAvailable != null) {
-			nextSolutionButton.disableProperty().bind(Bindings.not(prologEngineAvailable));
-		}
+		addListeners();
+		disable();
+		style();
 	}
 	
 	private void draw() {
 		queryTextArea = new TextArea();
-		VBox vBoxSecondColumn = new VBox();
-		vBoxSecondColumn.getChildren().add(queryTextArea);
+		
+		history = new ComboBox<>();
+		history.setPromptText("History");
+		history.setPrefWidth(JPC_QUERY_HISTORY_PREFERRED_WIDTH);
+		
 		nextSolutionButton = new Button("Next");
 		allSolutionsButton = new Button("All Solutions");
-		clearTextButton = new Button("Clear");
+		cancelQueryButton = new Button("Cancel");
 		
-		HBox hBoxButtons = new HBox();
-		hBoxButtons.setSpacing(10);
-		//hBoxButtons.getChildren().addAll(nextSolutionButton, allSolutionsButton, clearTextButton);
-		hBoxButtons.getChildren().addAll(allSolutionsButton, clearTextButton);
-		vBoxSecondColumn.getChildren().add(hBoxButtons);
-		getChildren().add(vBoxSecondColumn);
+		copyToClipboardButton = new Button("Copy");
+		clearTextButton = new Button("Clear");
+
+		allButtonsPane = new ToolBar();
+		queryButtonsPane = new HBox();
+		editionButtonsPane = new HBox();
+		queryButtonsPane.getChildren().addAll(nextSolutionButton, allSolutionsButton, cancelQueryButton);
+		editionButtonsPane.getChildren().addAll(copyToClipboardButton, clearTextButton);
+		allButtonsPane.getItems().addAll(queryButtonsPane, history, editionButtonsPane);
+
+		getChildren().addAll(allButtonsPane, queryTextArea);
 	}
 
+	
+	public void setModel(QueryModel model) {
+		resetModel();
+		this.model = model;
+		queryTextArea.textProperty().bindBidirectional(model.queryTextProperty());
+		queryTextArea.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+		history.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+		history.itemsProperty().bind(model.queryHistoryProperty());
+		clearTextButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+		nextSolutionButton.disableProperty().bind(Bindings.not(model.nextSolutionEnabledProperty()));
+		allSolutionsButton.disableProperty().bind(Bindings.not(model.allSolutionsEnabledProperty()));
+		cancelQueryButton.disableProperty().bind(Bindings.not(model.cancelEnabledProperty()));
+		copyToClipboardButton.disableProperty().bind(Bindings.not(model.queryTextAvailableProperty()));
+	}
+	
+	public void resetModel() {
+		queryTextArea.textProperty().unbindBidirectional(model.queryTextProperty());
+		queryTextArea.disableProperty().unbind();
+		history.disableProperty().unbind();
+		history.itemsProperty().unbind();
+		clearTextButton.disableProperty().unbind();
+		nextSolutionButton.disableProperty().unbind();
+		allSolutionsButton.disableProperty().unbind();
+		cancelQueryButton.disableProperty().unbind();
+		copyToClipboardButton.disableProperty().unbind();
+		model = null;
+	}
+	
+	private void disable() {
+		queryTextArea.disableProperty().set(true);
+		history.disableProperty().set(true);
+		clearTextButton.disableProperty().set(true);
+		nextSolutionButton.disableProperty().set(true);
+		allSolutionsButton.disableProperty().set(true);
+		cancelQueryButton.disableProperty().set(true);
+		copyToClipboardButton.disableProperty().set(true);
+	}
+	
+	
 	private void addListeners() {
+		
+		// QUERY BUTTONS
+		nextSolutionButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						model.nextSolution();
+					}
+				});
+			}
+		});
+		
+		allSolutionsButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						model.allSolutions();
+					}
+				});
+			}
+		});
+		
+		cancelQueryButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						model.forceClose();
+					}
+				});
+			}
+		});
+		
+		
+		// EDITOR BUTTONS
+		
 		clearTextButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
@@ -78,6 +179,20 @@ public class QueryPane extends VBox {
 			    clipboard.setContent(content);
 			}
 		});
+		
+		history.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				queryTextArea.textProperty().set(newValue);
+			}
+		});
+	}
+	
+	private void style() {
+		queryButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
+		editionButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
+		allButtonsPane.getStyleClass().add(JPC_TOOLBAR);
+		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 
 }

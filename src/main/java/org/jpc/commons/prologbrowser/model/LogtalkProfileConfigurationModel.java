@@ -4,16 +4,17 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import org.jpc.engine.logtalk.driver.LogtalkEngineProfile;
+import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
 import org.jpc.engine.prolog.driver.PrologEngineProfile;
 import org.jpc.engine.provider.PrologEngineFactoryProvider;
 
-public class LogtalkProfileConfigurationModel implements PrologEngineFactoryProvider<PrologEngineFactory> {
+public class LogtalkProfileConfigurationModel implements PrologEngineFactoryProvider<PrologEngine> {
 
-	PrologEngineFactoryProvider<? extends PrologEngineFactory> factoryProvider;
+	PrologEngineFactoryProvider<? extends PrologEngine> factoryProvider;
 	private BooleanProperty logtalkEnabledProperty;
 	
-	public LogtalkProfileConfigurationModel(PrologEngineFactoryProvider<? extends PrologEngineFactory> factoryProvider//, BooleanProperty logtalkEnabledProperty
+	public LogtalkProfileConfigurationModel(PrologEngineFactoryProvider<? extends PrologEngine> factoryProvider//, BooleanProperty logtalkEnabledProperty
 			) {
 		this.factoryProvider = factoryProvider;
 		this.logtalkEnabledProperty = new SimpleBooleanProperty();
@@ -24,9 +25,9 @@ public class LogtalkProfileConfigurationModel implements PrologEngineFactoryProv
 	}
 	
 	@Override
-	public PrologEngineProfile getPrologEngineFactory() {
+	public PrologEngineFactory<PrologEngine> getPrologEngineFactory() {
 		PrologEngineProfile profile = null;
-		PrologEngineFactory engineFactory = factoryProvider.getPrologEngineFactory();
+		PrologEngineFactory<? extends PrologEngine> engineFactory = factoryProvider.getPrologEngineFactory();
 		if(engineFactory != null) {
 			if(logtalkEnabledProperty.getValue())
 				profile = new LogtalkEngineProfile(engineFactory);

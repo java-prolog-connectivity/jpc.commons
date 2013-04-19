@@ -13,8 +13,9 @@ import javafx.scene.control.MultipleSelectionModel;
 
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineDriver;
+import org.jpc.engine.prolog.driver.PrologEngineFactory;
 import org.jpc.engine.provider.PrologEngineFactoryProvider;
-import org.minitoolbox.fx.FXUtility;
+import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +28,13 @@ public class PrologEngineOrganizer implements PrologEngineFactoryInvalidatedList
 
 	private static Logger logger = LoggerFactory.getLogger(PrologEngineOrganizer.class);
 	
-	private Map<PrologEngineDriver, ObservableList<PrologEngine>> driverMap;
-	private PrologEngineFactoryProvider<PrologEngineDriver> driverProvider; //knows the selected driver
+	private Map<PrologEngineFactory<PrologEngine>, ObservableList<PrologEngineModel>> driverMap;
+	private PrologEngineFactoryProvider<PrologEngine> driverProvider; //knows the selected driver
 
-	private ObservableList<PrologEngine> selectedDriverPrologEngines;
-	private PrologEngineDriver currentDriver;
+	private ObservableList<PrologEngineModel> selectedDriverPrologEngines;
+	private PrologEngineFactory<PrologEngine> currentDriver;
 	
-	ObjectProperty<MultipleSelectionModel<PrologEngine>> prologEngineSelectionModelProperty;
+	ObjectProperty<MultipleSelectionModel<PrologEngineModel>> prologEngineSelectionModelProperty;
 	
 	public PrologEngineOrganizer(PrologEngineChoiceModel prologEngineChoiceModel, PrologDriverChoiceModel driverChoiceModel) {
 		this.selectedDriverPrologEngines = prologEngineChoiceModel.getPrologEnginesList();
@@ -41,29 +42,29 @@ public class PrologEngineOrganizer implements PrologEngineFactoryInvalidatedList
 		this.driverProvider = driverChoiceModel;
 		driverMap = new HashMap<>();
 		for(PrologEngineDriver driver : driverChoiceModel.getDrivers()) {
-			driverMap.put(driver, FXCollections.<PrologEngine>observableArrayList());
+			driverMap.put(driver, FXCollections.<PrologEngineModel>observableArrayList());
 		}
 		driverChoiceModel.addDriverSelectionObserver(this);
 	}
 
-	public Set<PrologEngine> getPrologEngines() {
-		Set<PrologEngine> prologEngines = new HashSet<>();
-		for(Entry<PrologEngineDriver, ObservableList<PrologEngine>> entry : driverMap.entrySet()) {
+	public Set<PrologEngineModel> getPrologEngines() {
+		Set<PrologEngineModel> prologEngines = new HashSet<>();
+		for(Entry<PrologEngineFactory<PrologEngine>, ObservableList<PrologEngineModel>> entry : driverMap.entrySet()) {
 			prologEngines.addAll(entry.getValue());
 		}
 		return prologEngines;
 	}
 	
-	public PrologEngineDriver getPrologEngineDriver() {
+	public PrologEngineFactory<PrologEngine> getPrologEngineDriver() {
 		return driverProvider.getPrologEngineFactory();
 	}
 	
 	/**
 	 * @param driver the driver to set
 	 */
-	private void setDriverSelection(PrologEngineDriver driver) {
+	private void setDriverSelection(PrologEngineFactory<PrologEngine> driver) {
 		resetDriverSelection();
-		ObservableList<PrologEngine> prologEngines = driverMap.get(driver);
+		ObservableList<PrologEngineModel> prologEngines = driverMap.get(driver);
 		selectedDriverPrologEngines.setAll(prologEngines);
 		driverMap.put(driver, selectedDriverPrologEngines);
 		currentDriver = driver;
@@ -74,7 +75,7 @@ public class PrologEngineOrganizer implements PrologEngineFactoryInvalidatedList
 	
 	private void resetDriverSelection() {
 		if(currentDriver != null) {
-			ObservableList<PrologEngine> clonedListEnginesCurrentDriver = FXCollections.<PrologEngine>observableArrayList(selectedDriverPrologEngines);
+			ObservableList<PrologEngineModel> clonedListEnginesCurrentDriver = FXCollections.<PrologEngineModel>observableArrayList(selectedDriverPrologEngines);
 			driverMap.put(currentDriver, clonedListEnginesCurrentDriver);
 			selectedDriverPrologEngines.clear();
 			currentDriver = null;
@@ -83,10 +84,10 @@ public class PrologEngineOrganizer implements PrologEngineFactoryInvalidatedList
 
 	@Override
 	public void onPrologEngineFactoryInvalidated() { //no driver has been selected
-		FXUtility.runInFXApplicationThread(new Runnable() {
+		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
-				PrologEngineDriver driver = getPrologEngineDriver();
+				PrologEngineFactory<PrologEngine> driver = getPrologEngineDriver();
 				if(driver == null) {
 					resetDriverSelection();
 				} else {
@@ -98,7 +99,7 @@ public class PrologEngineOrganizer implements PrologEngineFactoryInvalidatedList
 	}
 
 	public void shutdownAll() {
-		for(PrologEngine prologEngine : getPrologEngines()) {
+		for(PrologEngineModel prologEngine : getPrologEngines()) {
 			if(prologEngine.isCloseable()) {
 				try {
 					prologEngine.close();
