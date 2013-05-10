@@ -1,5 +1,6 @@
 package org.jpc.commons.prologbrowser.model;
 
+import java.util.Collection;
 import java.util.concurrent.Executor;
 
 import javafx.beans.property.BooleanProperty;
@@ -7,34 +8,58 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
+import org.jpc.engine.listener.PrologEngineLifeCycleListener;
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.PrologEngineProxy;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
 import org.jpc.util.naming.Nameable;
+import org.minitoolbox.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
 
 public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 
-	private volatile PrologEngine prologEngine;
-	private BooleanProperty busy;
-	private volatile double startupTime; //the time the Prolog engine was created
+	private BooleanProperty available;
 	private StringProperty name;
+	private volatile double startupTime; //the time the Prolog engine was created
 	private Executor executor;
+	private Collection<PrologEngineLifeCycleListener> engineLifeCycleListeners;
 	
 	public PrologEngineModel(Executor executor) {
-		busy = new SimpleBooleanProperty(true); //it is busy until initialized
+		available = new SimpleBooleanProperty(false); //it is not yet available when just initialized
 		name = new SimpleStringProperty();
 		this.executor = executor;
-		
+		this.engineLifeCycleListeners = CollectionsUtil.createWeakSet();
 	}
 
-	public void setBusy(boolean b) {
-		busy.set(b);
+	@Override
+	protected synchronized void setPrologEngine(PrologEngine prologEngine) {
+		super.setPrologEngine(prologEngine);
+	}
+	
+	@Override
+	public synchronized PrologEngine getPrologEngine() {
+		return super.getPrologEngine();
+	}
+	
+	protected synchronized void setStartupTime(double startupTime) {
+		this.startupTime = startupTime;
+	}
+
+	public synchronized double getStartupTime() {
+		return startupTime;
 	}
 	
 	
-	public BooleanProperty busyProperty() {
-		return busy;
+	public void setAvailable(boolean b) {
+		available.set(b);
+	}
+	
+	public boolean isAvailable() {
+		return available.get();
+	}
+	
+	public BooleanProperty availableProperty() {
+		return available;
 	}
 	
 	public StringProperty nameProperty() {
@@ -51,22 +76,25 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		this.name.set(name);
 	}
 
-	public double getStartupTime() {
-		return startupTime;
-	}
 
-	public void initialize(final PrologEngineFactory<? extends PrologEngine> prologEngineFactory) {
-		if(prologEngine != null)
+	public void initialize(final PrologEngineFactory prologEngineFactory) {
+		if(getPrologEngine() != null)
 			throw new RuntimeException("Engine already initialized");
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
-				prologEngine = prologEngineFactory.createPrologEngine();
-				startupTime = System.nanoTime();
+				setPrologEngine(prologEngineFactory.createPrologEngine());
+//				try {
+//				Thread.sleep(500); //TODO delete
+//				} catch (InterruptedException e) {
+//					throw new RuntimeException(e);
+//				}
+				setStartupTime(System.nanoTime());
 				FXUtil.runInFXApplicationThread(new Runnable() {
 					@Override
 					public void run() {
-						busy.set(false);
+						available.set(true);
+						notifyOnCreation();
 					}
 				});
 			}
@@ -74,23 +102,43 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 	}
 
 	@Override
+	public boolean isCloseable() {
+		if(getPrologEngine() == null)
+			return false;
+		else
+			return super.isCloseable();
+	}
+	
+	@Override
 	public void close() {
-		busy.set(true);
+		available.set(false);
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					PrologEngineModel.super.close();
-				} finally {
-					FXUtil.runInFXApplicationThread(new Runnable() {
-						@Override
-						public void run() {
-							busy.set(false);
-						}
-					});
-				}
+				PrologEngineModel.super.close();
+				notifyOnShutdown();
 			}
 		});
 	}
 
+	public void addEngineLifeCycleListener(PrologEngineLifeCycleListener listener) {
+		engineLifeCycleListeners.add(listener);
+	}
+
+	public void removeEngineLifeCycleListener(PrologEngineLifeCycleListener listener) {
+		engineLifeCycleListeners.remove(listener);
+	}
+
+	void notifyOnCreation() {
+		for(PrologEngineLifeCycleListener listener : engineLifeCycleListeners) {
+			listener.onPrologEngineCreation(this);
+		}
+	}
+	
+	void notifyOnShutdown() {
+		for(PrologEngineLifeCycleListener listener : engineLifeCycleListeners) {
+			listener.onPrologEngineShutdown(this);
+		}
+	}
+	
 }

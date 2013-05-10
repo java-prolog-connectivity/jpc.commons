@@ -8,12 +8,10 @@ import java.util.TreeSet;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.MultipleSelectionModel;
 
 import org.jpc.engine.listener.DriverStateListener;
-import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineDriver;
 import org.jpc.engine.provider.PrologEngineFactoryProvider;
 import org.jpc.util.DriverUtil;
@@ -28,18 +26,17 @@ import com.google.common.collect.Multimap;
  * @author sergioc
  *
  */
-public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<PrologEngine>, DriverStateListener {
+public class PrologDriverChoiceModel implements PrologEngineFactoryProvider, DriverStateListener {
 
-	private ObjectProperty<MultipleSelectionModel<String>> prologEngineTypesSelectionModelProperty;
-	private ObjectProperty<MultipleSelectionModel<PrologEngineDriver>> prologEngineDriversSelectionModelProperty;
+	private ObjectProperty<MultipleSelectionModel<String>> engineTypesSelectionModelProperty;
+	private ObjectProperty<MultipleSelectionModel<PrologEngineDriver>> filteredDriversSelectionModelProperty;
 
+	private Collection<PrologEngineFactoryInvalidatedListener> driverSelectionObservers; //a list of observers to be notified in the event of a new driver selected
 	
-	private Collection<PrologEngineFactoryInvalidatedListener> driverSelectionObservers;
-	
-	private ObservableList<String> enginesNames; //the list of Prolog engine names
+	private ObservableList<String> engineTypes; //the list of Prolog engine names
 	private ObservableList<PrologEngineDriver> filteredDrivers; //a list of filtered drivers (according to a selected Prolog engine)
 	
-	private List<PrologEngineDriver> drivers; //an (alphabetically) ordered list of all available Prolog drivers
+	private List<PrologEngineDriver> allDrivers; //an (alphabetically) ordered list of all available Prolog drivers
 	private Multimap<String,Multimap<String, PrologEngineDriver>> groupedDrivers; //a multimap mapping engine names to drivers
 
 	
@@ -50,29 +47,33 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 		NamingUtil.renameRepeatedNames(drivers);
 	}
 	
-	public PrologDriverChoiceModel(Iterable<PrologEngineDriver> drivers, 
-			ObjectProperty<MultipleSelectionModel<String>> prologEngineTypesSelectionModelProperty, 
-			ObjectProperty<MultipleSelectionModel<PrologEngineDriver>> prologEngineDriversSelectionModelProperty) {
+	
+	public PrologDriverChoiceModel(Iterable<PrologEngineDriver> allDrivers, 
+			ObservableList<String> engineTypes,
+			ObjectProperty<MultipleSelectionModel<String>> engineTypesSelectionModelProperty,
+			ObservableList<PrologEngineDriver> filteredDrivers,
+			ObjectProperty<MultipleSelectionModel<PrologEngineDriver>> filteredDriversSelectionModelProperty) {
 		
-		this.prologEngineTypesSelectionModelProperty = prologEngineTypesSelectionModelProperty;
-		this.prologEngineDriversSelectionModelProperty = prologEngineDriversSelectionModelProperty;
+		this.engineTypes = engineTypes;
+		this.engineTypesSelectionModelProperty = engineTypesSelectionModelProperty;
+		this.filteredDrivers = filteredDrivers;
+		this.filteredDriversSelectionModelProperty = filteredDriversSelectionModelProperty;
 		this.driverSelectionObservers = CollectionsUtil.createWeakSet();
-		if(drivers == null || !drivers.iterator().hasNext()) {
-			drivers = DriverUtil.findConfigurations();
-			setDefaultNames(drivers);
-		}
-		this.drivers = DriverUtil.order(drivers);
-		//this.drivers = drivers;
 		
-		DriverUtil.registerListener(this, drivers); //so instances will be notified if a driver is not available anymore
+		if(allDrivers == null || !allDrivers.iterator().hasNext()) {
+			allDrivers = DriverUtil.findConfigurations();
+			setDefaultNames(allDrivers);
+		}
+		this.allDrivers = DriverUtil.order(allDrivers);
+
+		DriverUtil.registerListener(this, allDrivers); //so instances will be notified if a driver is not available anymore
 		addSelectionListeners();
-		groupedDrivers = DriverUtil.groupByPrologEngineName(drivers);
-		enginesNames = FXCollections.observableArrayList(new TreeSet<>(groupedDrivers.keySet())); //TreeSet is an ordered set (by default uses alphabetical order)
-		filteredDrivers = FXCollections.observableArrayList();
+		groupedDrivers = DriverUtil.groupByPrologEngineName(allDrivers);
+		engineTypes.addAll(new TreeSet<>(groupedDrivers.keySet())); //TreeSet is an ordered set (by default uses alphabetical order)
 	}
 	
-	public ObservableList<String> getEnginesNames() {
-		return enginesNames;
+	public ObservableList<String> getEngineTypes() {
+		return engineTypes;
 	}
 	
 	public ObservableList<PrologEngineDriver> getFilteredDrivers() {
@@ -80,7 +81,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 	}
 	
 	private void addSelectionListeners() {
-		getPrologEngineTypesSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+		getEngineTypesSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldPrologEngineType, String newPrologEngineType) {
 				if(!newPrologEngineType.equals(oldPrologEngineType)) {
@@ -89,7 +90,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 			}
 		});
 		
-		getPrologEngineDriversSelectionModel().selectedItemProperty().addListener(new ChangeListener<PrologEngineDriver>() {
+		getFilteredDriversSelectionModel().selectedItemProperty().addListener(new ChangeListener<PrologEngineDriver>() {
 			@Override
 			public void changed(ObservableValue<? extends PrologEngineDriver> observable, PrologEngineDriver oldDriver, PrologEngineDriver newDriver) {
 				if(newDriver == null || !newDriver.equals(oldDriver)) {
@@ -107,11 +108,12 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 				drivers.add(driver);
 			}
 		}
+		DriverUtil.orderByLibraryName(drivers);
 		return drivers;
 	}
 
-	public List<PrologEngineDriver> getDrivers() {
-		return drivers;
+	public List<PrologEngineDriver> getAllDrivers() {
+		return allDrivers;
 	}
 
 	public List<Multimap<String, PrologEngineDriver>> getDrivers(String engineName) {
@@ -134,12 +136,12 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 
 	@Override
 	public PrologEngineDriver getPrologEngineFactory() {
-		return getPrologEngineDriversSelectionModel().getSelectedItem();
+		return getFilteredDriversSelectionModel().getSelectedItem();
 	}
 
 	public void selectFirst() {
-		if(!enginesNames.isEmpty())
-			getPrologEngineTypesSelectionModel().select(enginesNames.get(0));
+		if(!engineTypes.isEmpty())
+			getEngineTypesSelectionModel().select(engineTypes.get(0));
 	}
 
 	public void selectPrologEngine(String engineName) {
@@ -147,16 +149,16 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 		filteredDrivers.setAll(drivers);
 		if(!drivers.isEmpty()) {
 			PrologEngineDriver firstDriver = drivers.get(0);
-			getPrologEngineDriversSelectionModel().select(firstDriver); //this should trigger the registered change listeners
+			getFilteredDriversSelectionModel().select(firstDriver); //this should trigger the registered change listeners
 		}	
 	}
 	
-	private MultipleSelectionModel<String> getPrologEngineTypesSelectionModel() {
-		return prologEngineTypesSelectionModelProperty.get();
+	private MultipleSelectionModel<String> getEngineTypesSelectionModel() {
+		return engineTypesSelectionModelProperty.get();
 	}
 	
-	private MultipleSelectionModel<PrologEngineDriver> getPrologEngineDriversSelectionModel() {
-		return prologEngineDriversSelectionModelProperty.get();
+	private MultipleSelectionModel<PrologEngineDriver> getFilteredDriversSelectionModel() {
+		return filteredDriversSelectionModelProperty.get();
 	}
 	
 	@Override
@@ -166,7 +168,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 			public void run() {
 				PrologEngineDriver selectedDriver = getPrologEngineFactory();
 				if(selectedDriver != null) {
-					if(!selectedDriver.isEnabled()) {
+					if(selectedDriver.isDisabled()) {
 						notifyDriverInvalidated();
 					}
 				}

@@ -73,8 +73,8 @@ public class AboutDriverPane extends VBox {
 		hBoxWebsite.getChildren().addAll(websiteLink);
 		
 		footer.getChildren().addAll(hBoxLicense, hBoxWebsite);
-		footer.setHgrow(hBoxLicense, Priority.SOMETIMES);
-		footer.setHgrow(hBoxWebsite, Priority.SOMETIMES);
+		HBox.setHgrow(hBoxLicense, Priority.SOMETIMES);
+		HBox.setHgrow(hBoxWebsite, Priority.SOMETIMES);
 		
 		getChildren().addAll(gridPane, footer);
 		

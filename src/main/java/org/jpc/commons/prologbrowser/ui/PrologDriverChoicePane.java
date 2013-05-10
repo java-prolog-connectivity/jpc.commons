@@ -22,7 +22,7 @@ import org.jpc.commons.prologbrowser.model.PrologDriverChoiceModel;
 import org.jpc.engine.prolog.driver.PrologEngineDriver;
 
 /**
- * Allows a user to select a Prolog driver
+ * Allows a user to select a Prolog driver.
  * @author sergioc
  *
  */
@@ -38,18 +38,14 @@ public class PrologDriverChoicePane extends GridPane {
 	private ListView<PrologEngineDriver> prologDrivers;
 	
 	
-	public PrologDriverChoicePane(Application app, Iterable<PrologEngineDriver> drivers) {
+	public PrologDriverChoicePane(Iterable<PrologEngineDriver> drivers, Application app) {
 		this.app = app;
 		draw();
-		model = new PrologDriverChoiceModel(drivers, engineTypes.selectionModelProperty(), prologDrivers.selectionModelProperty());
-		engineTypes.setItems(model.getEnginesNames());
-		prologDrivers.setItems(model.getFilteredDrivers());
-		//model.selectFirst(); //it is not a good idea to select the first here, since some state listeners may have not been added yet (e.g., a button for starting a Prolog engine)
+		model = new PrologDriverChoiceModel(drivers, engineTypes.getItems(), engineTypes.selectionModelProperty(), prologDrivers.getItems(), prologDrivers.selectionModelProperty());
+		//model.selectFirst(); //it is not a good idea to select the first driver here, since some state listeners may have not been added yet (e.g., a button for starting a Prolog engine)
 		style();
 	}
 
-	
-	
 	public PrologDriverChoiceModel getModel() {
 		return model;
 	}
@@ -91,16 +87,11 @@ public class PrologDriverChoicePane extends GridPane {
 		add(prologDrivers, 1, 1);
 	}
 	
-
-
 	
-	
-	public void disableEngineConfigurationOptions() {
+	public void disable() {
 		engineTypes.setDisable(true);
 		prologDrivers.setDisable(true);
 	}
-	
-
 
 	private class PrologEngineConfigurationCell extends ListCell<PrologEngineDriver> {
 		
@@ -111,12 +102,10 @@ public class PrologDriverChoicePane extends GridPane {
 					if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
 			            if(mouseEvent.getClickCount() == 2){
 			            	Window owner = getScene().getWindow();
-			            	PrologEngineDriver config = ((PrologEngineConfigurationCell)mouseEvent.getSource()).getItem();
-			            	if(config != null) {
-			            		//Stage stage = new Stage();
-			            		new AboutDriverDialogStage(owner, app, config).show();
+			            	PrologEngineDriver driver = ((PrologEngineConfigurationCell)mouseEvent.getSource()).getItem();
+			            	if(driver != null) {
+			            		new AboutDriverDialogStage(owner, app, driver).show();
 			            	}
-			            	
 			            }
 			        }
 				}
@@ -129,6 +118,5 @@ public class PrologDriverChoicePane extends GridPane {
 		}
 	}
 	
-
 
 }

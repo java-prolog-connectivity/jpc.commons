@@ -8,9 +8,7 @@ import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_PROLOG_ENGINE_ITEM;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_BUTTON_PROGRESS_INDICATOR_SIZE;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_HEIGHT_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_WIDTH_LIST;
-
-import java.util.concurrent.Executor;
-
+import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -23,8 +21,6 @@ import javafx.util.Callback;
 
 import org.jpc.commons.prologbrowser.model.PrologEngineChoiceModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineModel;
-import org.jpc.engine.prolog.PrologEngine;
-import org.jpc.engine.provider.PrologEngineFactoryProvider;
 
 public class PrologEngineChoicePane extends GridPane {
 
@@ -32,9 +28,9 @@ public class PrologEngineChoicePane extends GridPane {
 	private Label engineInstanceLabel;
 	private ListView<PrologEngineModel> prologEngines;
 	
-	public PrologEngineChoicePane(PrologEngineFactoryProvider<? extends PrologEngine> factoryProvider, Executor executor) {
+	public PrologEngineChoicePane() {
 		draw();
-		model = new PrologEngineChoiceModel(prologEngines.getItems(), prologEngines.selectionModelProperty(), factoryProvider, executor);
+		model = new PrologEngineChoiceModel(prologEngines.getItems(), prologEngines.selectionModelProperty());
 		style();
 	}
 	
@@ -71,19 +67,19 @@ public class PrologEngineChoicePane extends GridPane {
 	private class PrologEngineCell extends ListCell<PrologEngineModel> {
 		@Override protected void updateItem(PrologEngineModel prologEngineModel, boolean empty) {
 			super.updateItem(prologEngineModel, empty);
-//			if(prologEngineModel == null) {
-//				setText("");
-//			} else {
-//				HBox pane = new HBox();
-//				ProgressIndicator progress = new ProgressIndicator(); 
-//				progress.setPrefSize(JPC_BUTTON_PROGRESS_INDICATOR_SIZE, JPC_BUTTON_PROGRESS_INDICATOR_SIZE);
-//				progress.visibleProperty().bind(prologEngineModel.busyProperty());
-//				Text prologEngineNameText = new Text(prologEngineModel.getName());
-//				pane.getChildren().addAll(progress, prologEngineNameText);
-//				pane.getStyleClass().add(JPC_PROLOG_ENGINE_ITEM);
-//				setGraphic(pane);
-//			}
-			setText(prologEngineModel == null ? "" : prologEngineModel.getName());
+			if(prologEngineModel == null) {
+				setText("");
+			} else {
+				HBox pane = new HBox();
+				ProgressIndicator progress = new ProgressIndicator(); 
+				progress.setPrefSize(JPC_BUTTON_PROGRESS_INDICATOR_SIZE, JPC_BUTTON_PROGRESS_INDICATOR_SIZE);
+				progress.visibleProperty().bind(Bindings.not(prologEngineModel.availableProperty()));
+				Text prologEngineNameText = new Text(prologEngineModel.getName());
+				pane.getChildren().addAll(progress, prologEngineNameText);
+				pane.getStyleClass().add(JPC_PROLOG_ENGINE_ITEM);
+				setGraphic(pane);
+			}
+			//setText(prologEngineModel == null ? "" : prologEngineModel.getName());
 		}
 	}
 

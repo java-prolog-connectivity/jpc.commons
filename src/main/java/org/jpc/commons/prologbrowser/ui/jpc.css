@@ -5,7 +5,7 @@
 }
 
 .jpc-query-browser-pane {
-	
+	-fx-spacing: 10;
 }
 
 .jpc-title {
@@ -27,6 +27,17 @@
     -fx-vgap: 10;
 }
 
+.jpc-hbox {
+    -fx-spacing: 15;
+}
+
+.jpc-vbox {
+    -fx-spacing: 10;
+}
+
+.jpc-section {
+	-fx-padding: 0 0 0 10;
+}
 
 .jpc-list {
 	/*

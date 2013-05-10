@@ -1,6 +1,7 @@
 package org.jpc.commons.prologbrowser.ui;
 
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TOOLBAR;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TOOLBAR_GROUP_PANE;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_QUERY_HISTORY_PREFERRED_WIDTH;
@@ -36,7 +37,7 @@ public class QueryPane extends VBox {
 	
 	private TextArea queryTextArea;
 	
-	private ToolBar allButtonsPane;
+	private ToolBar toolbarPane;
 	private ComboBox<String> history;
 	
 	private HBox queryButtonsPane;
@@ -48,9 +49,10 @@ public class QueryPane extends VBox {
 	private Button copyToClipboardButton;
 	private Button clearTextButton;
 	
+	private HBox loadButtonsPane;
 	
-	public QueryPane(Executor executor) {
-		this.executor = executor;
+	public QueryPane() {
+		//this.executor = executor; //TODO FIX THIS
 		draw();
 		addListeners();
 		disable();
@@ -71,14 +73,24 @@ public class QueryPane extends VBox {
 		copyToClipboardButton = new Button("Copy");
 		clearTextButton = new Button("Clear");
 
-		allButtonsPane = new ToolBar();
+		toolbarPane = new ToolBar();
 		queryButtonsPane = new HBox();
 		editionButtonsPane = new HBox();
+		loadButtonsPane = new HBox();
+		
+		
+		
 		queryButtonsPane.getChildren().addAll(nextSolutionButton, allSolutionsButton, cancelQueryButton);
 		editionButtonsPane.getChildren().addAll(copyToClipboardButton, clearTextButton);
-		allButtonsPane.getItems().addAll(queryButtonsPane, history, editionButtonsPane);
+		
+		
+		//EnsureLoadedPane ensureLoadedPane = new EnsureLoadedPane(prologEngineChoiceModel, prologEngineChoiceModel.prologEngineSelectedProperty(), executor);
+		//LogtalkLoadPane logtalkLoadPane = new LogtalkLoadPane(prologEngineChoiceModel, prologEngineChoiceModel.prologEngineSelectedProperty(), executor);
+		
+		loadButtonsPane.getChildren().addAll(ensureLoadedPane, logtalkLoadPane);
+		toolbarPane.getItems().addAll(queryButtonsPane, history, editionButtonsPane, loadButtonsPane);
 
-		getChildren().addAll(allButtonsPane, queryTextArea);
+		getChildren().addAll(toolbarPane, queryTextArea);
 	}
 
 	
@@ -189,9 +201,11 @@ public class QueryPane extends VBox {
 	}
 	
 	private void style() {
+		getStyleClass().addAll(JPC_GRID);
 		queryButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		editionButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
-		allButtonsPane.getStyleClass().add(JPC_TOOLBAR);
+		loadButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
+		toolbarPane.getStyleClass().add(JPC_TOOLBAR);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 
