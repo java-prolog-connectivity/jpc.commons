@@ -5,9 +5,9 @@ import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_LIST_LABEL;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_PROLOG_ENGINE_ITEM;
-import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_BUTTON_PROGRESS_INDICATOR_SIZE;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_HEIGHT_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_WIDTH_LIST;
+import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PROGRESS_INDICATOR_SIZE;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -16,7 +16,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Text;
 import javafx.util.Callback;
 
 import org.jpc.commons.prologbrowser.model.PrologEngineChoiceModel;
@@ -71,10 +70,11 @@ public class PrologEngineChoicePane extends GridPane {
 				setText("");
 			} else {
 				HBox pane = new HBox();
-				ProgressIndicator progress = new ProgressIndicator(); 
-				progress.setPrefSize(JPC_BUTTON_PROGRESS_INDICATOR_SIZE, JPC_BUTTON_PROGRESS_INDICATOR_SIZE);
+				ProgressIndicator progress = new ProgressIndicator();
+				progress.managedProperty().bind(progress.visibleProperty()); //so it will not use space when it is not visible
+				progress.setPrefSize(JPC_PROGRESS_INDICATOR_SIZE, JPC_PROGRESS_INDICATOR_SIZE);
 				progress.visibleProperty().bind(Bindings.not(prologEngineModel.availableProperty()));
-				Text prologEngineNameText = new Text(prologEngineModel.getName());
+				Label prologEngineNameText = new Label(prologEngineModel.getName());
 				pane.getChildren().addAll(progress, prologEngineNameText);
 				pane.getStyleClass().add(JPC_PROLOG_ENGINE_ITEM);
 				setGraphic(pane);
