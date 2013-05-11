@@ -6,6 +6,9 @@ import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
 import java.util.concurrent.Executor;
 
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
@@ -53,13 +56,13 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		prologEngineOrganizer = new PrologEngineOrganizer(driverChoiceModel, prologEngineChoiceModel, profileFactory, executor); //will register itself as an observer of the driver choice model
 		
 
-		StartPrologEnginePane startPrologEnginePane = new StartPrologEnginePane(prologEngineOrganizer);
-		startPrologEnginePane.getModel().disabledProperty().set(true);
-		driverChoiceModel.addDriverSelectionObserver(startPrologEnginePane.getModel());
+		BooleanProperty createEngineDisabled = new SimpleBooleanProperty();
+		createEngineDisabled.bind(Bindings.not(driverChoiceModel.selectedDriverEnabledProperty()));
+		StartPrologEnginePane startPrologEnginePane = new StartPrologEnginePane(prologEngineOrganizer, createEngineDisabled);
 		
-		ShutdownPrologEnginePane shutdownPrologEnginePane = new ShutdownPrologEnginePane(prologEngineChoiceModel, prologEngineOrganizer);
-		shutdownPrologEnginePane.getModel().disabledProperty().set(true);
-		prologEngineChoiceModel.addEngineSelectionListener(shutdownPrologEnginePane.getModel());
+		BooleanProperty shutdownEngineDisabled = new SimpleBooleanProperty();
+		shutdownEngineDisabled.bind(Bindings.not(prologEngineChoiceModel.selectedEngineCloseableProperty()));
+		ShutdownPrologEnginePane shutdownPrologEnginePane = new ShutdownPrologEnginePane(prologEngineChoiceModel, prologEngineOrganizer, shutdownEngineDisabled);
 		
 		driverChoiceModel.selectFirst();
 

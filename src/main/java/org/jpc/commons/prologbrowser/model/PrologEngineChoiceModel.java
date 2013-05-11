@@ -16,7 +16,8 @@ import org.minitoolbox.CollectionsUtil;
 
 public class PrologEngineChoiceModel implements PrologEngineProvider {
 
-	private BooleanProperty prologEngineAvailable; //a property indicating if an engine is currently selected
+	private BooleanProperty selectedEngineAvailable; //a property indicating if an engine is currently selected and it is available (not starting or shutting down)
+	private BooleanProperty selectedEngineCloseable; //a property indicating if the current selected engine can be stopped
 	private ObservableList<PrologEngineModel> availablePrologEngines;
 	private ObjectProperty<MultipleSelectionModel<PrologEngineModel>> selectionModelProperty;
 
@@ -27,12 +28,17 @@ public class PrologEngineChoiceModel implements PrologEngineProvider {
 		this.selectionModelProperty = selectionModelProperty;
 		this.engineSelectionListeners = CollectionsUtil.createWeakSet();
 		//selectionModelProperty.get().setSelectionMode(SelectionMode.MULTIPLE);
-		prologEngineAvailable = new SimpleBooleanProperty(false);
+		selectedEngineAvailable = new SimpleBooleanProperty(false);
+		selectedEngineCloseable = new SimpleBooleanProperty(false);
 		addListeners();
 	}
 	
-	public BooleanProperty prologEngineAvailableProperty() {
-		return prologEngineAvailable;
+	public BooleanProperty selectedEngineAvailableProperty() {
+		return selectedEngineAvailable;
+	}
+	
+	public BooleanProperty selectedEngineCloseableProperty() {
+		return selectedEngineCloseable;
 	}
 	
 	public ObjectProperty<MultipleSelectionModel<PrologEngineModel>> selectionModelProperty() {
@@ -45,10 +51,15 @@ public class PrologEngineChoiceModel implements PrologEngineProvider {
 			public void changed(ObservableValue<? extends PrologEngineModel> observable,
 					PrologEngineModel oldValue, PrologEngineModel newValue) {
 				PrologEngineModel prologEngineModel = getPrologEngine();
-				if(prologEngineModel != null)
-					prologEngineAvailable.set(true);
-				else
-					prologEngineAvailable.set(false);	
+				if(prologEngineModel != null) {
+					selectedEngineAvailable.bind(prologEngineModel.availableProperty());
+					selectedEngineCloseable.bind(prologEngineModel.closeableProperty());
+				} else {
+					selectedEngineAvailable.unbind();
+					selectedEngineAvailable.set(false);
+					selectedEngineCloseable.unbind();
+					selectedEngineCloseable.set(false);
+				}
 				notifyPrologEngineInvalidated();
 			}});
 	}
@@ -56,9 +67,9 @@ public class PrologEngineChoiceModel implements PrologEngineProvider {
 	@Override
 	public PrologEngineModel getPrologEngine() {
 		PrologEngineModel prologEngineModel = getFirstSelectedPrologEngine();
-		if(prologEngineModel == null || !prologEngineModel.isAvailable())
-			return null;
-		else
+//		if(prologEngineModel == null || !prologEngineModel.isAvailable())
+//			return null;
+//		else
 			return prologEngineModel;
 	}
 

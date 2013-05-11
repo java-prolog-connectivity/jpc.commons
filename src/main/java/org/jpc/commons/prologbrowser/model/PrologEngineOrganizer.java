@@ -32,11 +32,11 @@ public class PrologEngineOrganizer implements PrologEngineManager, PrologEngineF
 
 	private static Logger logger = LoggerFactory.getLogger(PrologEngineOrganizer.class);
 	
-	private Map<PrologEngineFactory, ObservableList<PrologEngineModel>> driverMap;
+	private Map<PrologEngineFactory, ObservableList<PrologEngineModel>> driverMap; //a map from drivers to active Prolog engines
 	private PrologDriverChoiceModel driverProvider; //knows the selected driver
-	private PrologEngineFactory currentDriver;
-	private ObservableList<PrologEngineModel> currentDriverPrologEngines;
-	private PrologEngineChoiceModel prologEngineChoiceModel;
+	private PrologEngineFactory currentDriver; //the current selected driver
+	private ObservableList<PrologEngineModel> currentDriverPrologEngines; //the available Prolog engines for the selected driver
+	private PrologEngineChoiceModel prologEngineChoiceModel; //knows the selected Prolog engine
 	
 	
 	private ObjectProperty<MultipleSelectionModel<PrologEngineModel>> prologEngineSelectionModelProperty;
@@ -121,6 +121,11 @@ public class PrologEngineOrganizer implements PrologEngineManager, PrologEngineF
 		}
 	}
 	
+	/**
+	 * 
+	 * @param prologEngineModel
+	 * @return the list of Prolog engines (associated to a particular driver) where a given engine is located
+	 */
 	private ObservableList<PrologEngineModel> findPrologEngineList(PrologEngineModel prologEngineModel) {
 		for(ObservableList<PrologEngineModel> list : driverMap.values()) {
 			if(list.contains(prologEngineModel))
@@ -132,8 +137,8 @@ public class PrologEngineOrganizer implements PrologEngineManager, PrologEngineF
 	@Override
 	public PrologEngineModel createPrologEngine() {
 		PrologEngineDriver driver = getPrologEngineDriver();
-		final PrologEngineFactory prologEngineFactory = profileFactory == null?driver : profileFactory.createPrologEngineProfile(driver);
-		final PrologEngineModel prologEngineModel = new PrologEngineModel(executor);
+		PrologEngineFactory prologEngineFactory = profileFactory == null?driver : profileFactory.createPrologEngineProfile(driver);
+		PrologEngineModel prologEngineModel = new PrologEngineModel(executor);
 		prologEngineModel.setName(driver.getShortDescription());
 		NamingUtil.renameIfRepeated(prologEngineModel, namesPrologEngines);
 		prologEngineModel.addEngineLifeCycleListener(this);
@@ -166,7 +171,6 @@ public class PrologEngineOrganizer implements PrologEngineManager, PrologEngineF
 				prologEngineChoiceModel.notifyPrologEngineInvalidated();
 			}
 		});
-		
 	}
 
 	@Override

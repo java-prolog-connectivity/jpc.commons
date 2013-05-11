@@ -4,6 +4,8 @@ import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CUSTOM_CSS_FILE_NAME;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import com.javafx.experiments.scenicview.ScenicView;
+
 public class QueryBrowserApp extends Application {
 
 	private QueryBrowserScene scene;

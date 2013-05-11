@@ -19,13 +19,15 @@ import org.minitoolbox.fx.FXUtil;
 public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 
 	private BooleanProperty available;
+	private BooleanProperty closeable;
 	private StringProperty name;
-	private volatile double startupTime; //the time the Prolog engine was created
+	private double startupTime; //the time the Prolog engine was created
 	private Executor executor;
 	private Collection<PrologEngineLifeCycleListener> engineLifeCycleListeners;
 	
 	public PrologEngineModel(Executor executor) {
 		available = new SimpleBooleanProperty(false); //it is not yet available when just initialized
+		closeable = new SimpleBooleanProperty(false);
 		name = new SimpleStringProperty();
 		this.executor = executor;
 		this.engineLifeCycleListeners = CollectionsUtil.createWeakSet();
@@ -77,7 +79,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 	}
 
 
-	public void initialize(final PrologEngineFactory prologEngineFactory) {
+	public synchronized void initialize(final PrologEngineFactory prologEngineFactory) {
 		if(getPrologEngine() != null)
 			throw new RuntimeException("Engine already initialized");
 		executor.execute(new Runnable() {
@@ -94,6 +96,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 					@Override
 					public void run() {
 						available.set(true);
+						closeable.set(PrologEngineModel.super.isCloseable());
 						notifyOnCreation();
 					}
 				});
@@ -101,17 +104,19 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		});
 	}
 
+	public BooleanProperty closeableProperty() {
+		return closeable;
+	}
+	
 	@Override
 	public boolean isCloseable() {
-		if(getPrologEngine() == null)
-			return false;
-		else
-			return super.isCloseable();
+		return closeable.get();
 	}
 	
 	@Override
 	public void close() {
 		available.set(false);
+		closeable.set(false);
 		executor.execute(new Runnable() {
 			@Override
 			public void run() {

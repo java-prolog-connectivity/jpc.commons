@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.TreeSet;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -28,6 +30,9 @@ import com.google.common.collect.Multimap;
  */
 public class PrologDriverChoiceModel implements PrologEngineFactoryProvider, DriverStateListener {
 
+	private BooleanProperty selectedDriver;
+	private BooleanProperty selectedDriverEnabled;
+	
 	private ObjectProperty<MultipleSelectionModel<String>> engineTypesSelectionModelProperty;
 	private ObjectProperty<MultipleSelectionModel<PrologEngineDriver>> filteredDriversSelectionModelProperty;
 
@@ -70,6 +75,16 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider, Dri
 		addSelectionListeners();
 		groupedDrivers = DriverUtil.groupByPrologEngineName(allDrivers);
 		engineTypes.addAll(new TreeSet<>(groupedDrivers.keySet())); //TreeSet is an ordered set (by default uses alphabetical order)
+		selectedDriver = new SimpleBooleanProperty(false);
+		selectedDriverEnabled = new SimpleBooleanProperty(false);
+	}
+	
+	public BooleanProperty selectedDriverProperty() {
+		return selectedDriver;
+	}
+	
+	public BooleanProperty selectedDriverEnabledProperty() {
+		return selectedDriverEnabled;
 	}
 	
 	public ObservableList<String> getEngineTypes() {
@@ -93,11 +108,27 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider, Dri
 		getFilteredDriversSelectionModel().selectedItemProperty().addListener(new ChangeListener<PrologEngineDriver>() {
 			@Override
 			public void changed(ObservableValue<? extends PrologEngineDriver> observable, PrologEngineDriver oldDriver, PrologEngineDriver newDriver) {
-				if(newDriver == null || !newDriver.equals(oldDriver)) {
-					notifyDriverInvalidated();
-				}
+				refreshSelectedDriverProperties();
+				notifyDriverInvalidated();
+//				if(newDriver == null || !newDriver.equals(oldDriver)) {
+//					notifyDriverInvalidated();
+//				}
 			}
 		});
+	}
+	
+	private void refreshSelectedDriverProperties() {
+		PrologEngineDriver driver = getPrologEngineFactory();
+		if(driver != null) {
+			selectedDriver.set(true);
+			if(driver.isDisabled())
+				selectedDriverEnabled.set(false);
+			else
+				selectedDriverEnabled.set(true);
+		} else {
+			selectedDriver.set(false);
+			selectedDriverEnabled.set(false);
+		}
 	}
 	
 	public List<PrologEngineDriver> getFlattenCollectionDrivers(String engineName) {
@@ -166,12 +197,13 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider, Dri
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
-				PrologEngineDriver selectedDriver = getPrologEngineFactory();
-				if(selectedDriver != null) {
-					if(selectedDriver.isDisabled()) {
-						notifyDriverInvalidated();
-					}
-				}
+				refreshSelectedDriverProperties();
+//				PrologEngineDriver selectedDriver = getPrologEngineFactory();
+//				if(selectedDriver != null) {
+//					if(selectedDriver.isDisabled()) {
+//						notifyDriverInvalidated();
+//					}
+//				}
 			}
 		});
 	}
