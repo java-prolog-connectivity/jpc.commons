@@ -67,10 +67,10 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		driverChoiceModel.selectFirst();
 
 
-		//toolbarPane = new ToolBar();
-		//lifeCycleButtonsPane = new HBox();
-		//lifeCycleButtonsPane.getChildren().addAll(startPrologEnginePane, shutdownPrologEnginePane);
-		//toolbarPane.getItems().addAll(lifeCycleButtonsPane);
+//		toolbarPane = new ToolBar();
+//		lifeCycleButtonsPane = new HBox();
+//		lifeCycleButtonsPane.getChildren().addAll(startPrologEnginePane, shutdownPrologEnginePane);
+//		toolbarPane.getItems().addAll(lifeCycleButtonsPane);
 				
 	
 		driverAndEnginePane = new GridPane();
@@ -87,6 +87,7 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		driverAndEnginePane.getStyleClass().addAll(JPC_GRID);
 		//lifeCycleButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		//toolbarPane.getStyleClass().add(JPC_TOOLBAR);
+		//setSpacing(15);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 	

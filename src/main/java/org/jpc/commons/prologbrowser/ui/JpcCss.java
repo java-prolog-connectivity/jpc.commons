@@ -24,10 +24,10 @@ public class JpcCss {
 	public static final String JPC_LIST = "jpc-list";
 	public static final String JPC_LIST_LABEL = "jpc-list-label";
 	public static final String JPC_PROLOG_ENGINE_ITEM = "jpc-prolog-engine-item";
-	public static final String JPC_TOOLBAR = "jpc-toolbar";
+	public static final String JPC_TOOLBAR_CONTAINER = "jpc-toolbar-container";
 	public static final String JPC_TOOLBAR_GROUP_PANE = "jpc-toolbar-group-pane";
 	public static final String JPC_BUTTON = "jpc-button";
-	
+	public static final String JPC_IMAGE_BUTTON = "jpc-image-button";
 	
 	public static final String ABOUT_DRIVER_FOOTER = "jpc-about-driver-footer";
 	public static final String ABOUT_DRIVER_FOOTER_LINK = "jpc-about-driver-footer-link";

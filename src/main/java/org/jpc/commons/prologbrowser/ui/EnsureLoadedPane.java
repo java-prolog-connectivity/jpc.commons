@@ -17,7 +17,6 @@ import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
-import org.jpc.commons.prologbrowser.model.PrologEngineModel;
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.provider.PrologEngineProvider;
 
@@ -25,7 +24,7 @@ public class EnsureLoadedPane extends HBox {
 
 	private Button ensureLoadedButton;
 	
-	public EnsureLoadedPane(final PrologEngineProvider<PrologEngineModel> prologEngineProvider, 
+	public EnsureLoadedPane(final PrologEngineProvider prologEngineProvider, 
 			BooleanProperty enabled,
 			final Executor executor) {
 		

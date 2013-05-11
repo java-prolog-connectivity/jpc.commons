@@ -3,6 +3,7 @@ package org.jpc.commons.prologbrowser.model;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -26,12 +27,13 @@ import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QueryModel implements QueryListener {
+public class SingleQueryModel implements QueryListener {
 
-	private static Logger logger = LoggerFactory.getLogger(QueryModel.class);
+	private static Logger logger = LoggerFactory.getLogger(SingleQueryModel.class);
 	
 	private Collection<QueryListener> listeners;
 	
+	private Executor executor;
 	//MAIN PROPERTIES
 	private Property<ObservableList<String>> queryHistory;
 	private StringProperty queryText;
@@ -51,7 +53,7 @@ public class QueryModel implements QueryListener {
 	private PrologEngine prologEngine;
 
 	
-	public QueryModel(PrologEngine prologEngine) {
+	public SingleQueryModel(PrologEngine prologEngine) {
 		this.prologEngine = prologEngine;
 		queryHistory = new SimpleObjectProperty<>(FXCollections.<String>observableArrayList());
 		listeners = CollectionsUtil.createWeakSet();

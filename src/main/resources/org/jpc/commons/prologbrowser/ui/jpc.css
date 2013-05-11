@@ -55,7 +55,7 @@
 	*/
 }
 
-.jpc-toolbar {
+.jpc-toolbar-container {
 	-fx-spacing: 10;
 }
 
@@ -68,6 +68,10 @@
  */
 .jpc-prolog-engine-item {
 	-fx-spacing: 8;
+}
+
+.jpc-image-button {
+	-fx-background-color: transparent;
 }
 
 .jpc-button {

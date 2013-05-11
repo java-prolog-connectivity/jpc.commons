@@ -33,7 +33,7 @@ public class QueryBrowserPane extends VBox {
 	private SettingsPane settingsPane;
 	
 	private Hyperlink queryTitle;
-	private QueryPane queryPane;
+	private SingleQueryPane queryPane;
 
 	private ExecutorService executor;
 	
@@ -49,10 +49,10 @@ public class QueryBrowserPane extends VBox {
 		togglePaneWhenHyperlinkClicked(logicConsolePane, logicConsoleTitle);
 		
 		queryTitle = new Hyperlink("Query");
-//		queryPane = new QueryPane();
-//		togglePaneWhenHyperlinkClicked(queryPane, queryTitle);
+		queryPane = new SingleQueryPane();
+		togglePaneWhenHyperlinkClicked(queryPane, queryTitle);
 		
-		getChildren().addAll(logicConsoleTitle, logicConsolePane, settingsTitle, settingsPane);//, queryTitle, queryPane);
+		getChildren().addAll(settingsTitle, settingsPane, logicConsoleTitle, logicConsolePane, queryTitle, queryPane);
 		setFocusTraversable(true);
 		requestFocus();
 		style();
@@ -80,6 +80,7 @@ public class QueryBrowserPane extends VBox {
 		settingsTitle.getStyleClass().add(JPC_TITLE);
 		settingsPane.getStyleClass().add(JPC_SECTION);
 		queryTitle.getStyleClass().add(JPC_TITLE);
+		queryPane.getStyleClass().add(JPC_SECTION);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 
