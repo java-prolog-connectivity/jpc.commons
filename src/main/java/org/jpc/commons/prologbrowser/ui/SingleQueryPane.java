@@ -37,8 +37,8 @@ public class SingleQueryPane extends VBox {
 	private ComboBox<String> history;
 	
 	private HBox queryButtonsPane;
-	private Button allSolutionsButton;
 	private Button oneSolutionButton;
+	private Button allSolutionsButton;
 	private Button nextSolutionButton;
 	private Button cancelQueryButton; //if there is an executing query aborts it
 	
@@ -65,7 +65,7 @@ public class SingleQueryPane extends VBox {
 		history.setPromptText("History");
 		//history.setPrefWidth(JPC_QUERY_HISTORY_PREFERRED_WIDTH);
 		history.setMaxWidth(Double.MAX_VALUE);
-		//HBox.setHgrow(history, Priority.SOMETIMES); //to make it grow to use the available horizontal space
+		
 		
 		queryButtonsPane = new HBox();
 		
@@ -82,7 +82,7 @@ public class SingleQueryPane extends VBox {
 		Image nextSolutionImage = new Image(getClass().getResourceAsStream("next_solution.png"));
 		nextSolutionButton = new Button("Next", new ImageView(nextSolutionImage));
 		nextSolutionButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-		nextSolutionButton.setTooltip(new Tooltip("One solution"));
+		nextSolutionButton.setTooltip(new Tooltip("Next solution"));
 		
 		Image cancelImage = new Image(getClass().getResourceAsStream("cancel.png"));
 		cancelQueryButton = new Button("Cancel", new ImageView(cancelImage));
@@ -239,8 +239,8 @@ public class SingleQueryPane extends VBox {
 	private void style() {
 		getStyleClass().addAll(JPC_GRID);
 		queryButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
-		editionButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		fileLoaderButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
+		editionButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		//toolbarPane.getStyleClass().add(JPC_TOOLBAR_CONTAINER);
 		firstRowToolBar.getStyleClass().add(JPC_TOOLBAR_CONTAINER);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());

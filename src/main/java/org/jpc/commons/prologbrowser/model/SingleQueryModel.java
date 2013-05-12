@@ -44,8 +44,9 @@ public class SingleQueryModel implements QueryListener {
 	//DERIVED PROPERTIES
 	private BooleanProperty queryTextEditable;
 	private BooleanProperty queryTextAvailable;
-	private BooleanProperty nextSolutionEnabled;
+	private BooleanProperty oneSolutionEnabled;
 	private BooleanProperty allSolutionsEnabled;
+	private BooleanProperty nextSolutionEnabled;
 	private BooleanProperty cancelEnabled;
 	private BooleanProperty isAbortable;
 		
