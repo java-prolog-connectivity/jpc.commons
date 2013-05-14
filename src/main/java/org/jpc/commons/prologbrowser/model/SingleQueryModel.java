@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -17,7 +19,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.query.ObservableQuery;
 import org.jpc.query.Query;
 import org.jpc.query.QueryListener;
@@ -31,34 +32,42 @@ public class SingleQueryModel implements QueryListener {
 
 	private static Logger logger = LoggerFactory.getLogger(SingleQueryModel.class);
 	
+	//private File file; //a file in the file system where this query is persisted
 	private Collection<QueryListener> listeners;
 	
-	private Executor executor;
+	private Executor abortQueryExecutor;
+	private ExecutorService queryExecutor; //a dedicated executor
 	//MAIN PROPERTIES
+	private BooleanProperty engineReady;
 	private Property<ObservableList<String>> queryHistory;
 	private StringProperty queryText;
 	private BooleanProperty queryOpen;
 	private BooleanProperty queryInProgress;
 	private BooleanProperty queryExhausted;
-	
+
 	//DERIVED PROPERTIES
 	private BooleanProperty queryTextEditable;
 	private BooleanProperty queryTextAvailable;
-	private BooleanProperty oneSolutionEnabled;
-	private BooleanProperty allSolutionsEnabled;
-	private BooleanProperty nextSolutionEnabled;
-	private BooleanProperty cancelEnabled;
-	private BooleanProperty isAbortable;
-		
-	private ObservableQuery query;
-	private PrologEngine prologEngine;
+	private BooleanProperty oneSolutionDisabled;
+	private BooleanProperty allSolutionsDisabled;
+	private BooleanProperty nextSolutionDisabled;
+	private BooleanProperty cancelDisabled;
+	private BooleanProperty abortable;
 
-	
-	public SingleQueryModel(PrologEngine prologEngine) {
-		this.prologEngine = prologEngine;
+	private ObservableQuery query;
+	private PrologEngineModel prologEngineModel;
+
+	public SingleQueryModel(PrologEngineModel prologEngineModel, Executor abortQueryExecutor) {
+		this.abortQueryExecutor = abortQueryExecutor;
+		this.prologEngineModel = prologEngineModel;
+		engineReady = prologEngineModel.readyProperty();
+		queryExecutor = Executors.newSingleThreadExecutor();
+		//queryExecutor = Executors.newSingleThreadExecutor(new OneThreadFactory());
+		//queryExecutor = new OneThreadExecutor();
+				
 		queryHistory = new SimpleObjectProperty<>(FXCollections.<String>observableArrayList());
 		listeners = CollectionsUtil.createWeakSet();
-		listeners.add(this); //the query model is a listener of the observed query. However, more listeners can be registered.
+		listeners.add(this); //the query model is a listener of the observed query. More listeners can be registered.
 		
 		//INITIALIZING MAIN PROPERTIES
 		queryText = new SimpleStringProperty();
@@ -66,8 +75,8 @@ public class SingleQueryModel implements QueryListener {
 		queryInProgress = new SimpleBooleanProperty(false);
 		queryExhausted = new SimpleBooleanProperty(false);
 		
-		
 		//SETTING DERIVED PROPERTIES
+		queryTextEditable = new SimpleBooleanProperty(true); 
 		queryTextEditable.bind(Bindings.not(Bindings.or(queryOpen, queryExhausted)));
 		queryTextAvailable = new SimpleBooleanProperty(false);
 		queryText.addListener(new ChangeListener<String>(){
@@ -80,12 +89,19 @@ public class SingleQueryModel implements QueryListener {
 					queryTextAvailable.set(true);
 			}
 		});
-		nextSolutionEnabled.bind(Bindings.and(queryTextAvailable, Bindings.not(queryExhausted)));
-		allSolutionsEnabled.bind(Bindings.and(queryTextAvailable, Bindings.not(Bindings.or(queryOpen, queryExhausted))));
-		isAbortable = new SimpleBooleanProperty(false); //this property will be updated when a query is created
-		cancelEnabled.bind(queryOpen.and(Bindings.or(Bindings.not(queryInProgress), isAbortable)));
+		oneSolutionDisabled = new SimpleBooleanProperty(true);
+		oneSolutionDisabled.bind(Bindings.not(engineReady).or(Bindings.not(queryTextAvailable).or(queryExhausted).or(queryOpen)));
+		allSolutionsDisabled = new SimpleBooleanProperty(true);
+		allSolutionsDisabled.bind(Bindings.not(engineReady).or(Bindings.not(queryTextAvailable).or(queryExhausted).or(queryOpen)));
+		nextSolutionDisabled = new SimpleBooleanProperty(true);
+		nextSolutionDisabled.bind(Bindings.not(engineReady).or(Bindings.not(queryTextAvailable).or(queryExhausted)));
+		abortable = new SimpleBooleanProperty(false); //this property will be updated when a query is created
+		cancelDisabled = new SimpleBooleanProperty(true);
+		cancelDisabled.bind(Bindings.not(queryOpen).and(Bindings.not(queryInProgress).or(Bindings.not(abortable))));
 	}
 
+	
+	
 	public Property<ObservableList<String>> queryHistoryProperty() {
 		return queryHistory;
 	}
@@ -102,50 +118,72 @@ public class SingleQueryModel implements QueryListener {
 		return queryTextEditable;
 	}
 	
+	public BooleanProperty abortableProperty() {
+		return abortable;
+	}
+	
+	public boolean isAbortable() {
+		return abortable.get();
+	}
+	
+	public BooleanProperty queryOpenProperty() {
+		return queryOpen;
+	}
+	
 	public BooleanProperty queryInProgressProperty() {
 		return queryInProgress;
 	}
 	
-	public BooleanProperty nextSolutionEnabledProperty() {
-		return nextSolutionEnabled;
+	public boolean isQueryInProgress() {
+		return queryInProgress.get();
 	}
 	
-	public BooleanProperty allSolutionsEnabledProperty() {
-		return allSolutionsEnabled;
+	public BooleanProperty oneSolutionDisabledProperty() {
+		return oneSolutionDisabled;
 	}
 	
-	public BooleanProperty cancelEnabledProperty() {
-		return cancelEnabled;
+	public BooleanProperty allSolutionsDisabledProperty() {
+		return allSolutionsDisabled;
 	}
 	
+	public BooleanProperty nextSolutionDisabledProperty() {
+		return nextSolutionDisabled;
+	}
 	
-	public void abort() {
-		if(query != null) {
-			try {
-				if(queryInProgress.get()) {
-					query.abort();
-				}
-			} catch(Exception e) {
-				//logger.warn("Impossible to abort running query in Prolog engine " + prologEngine.getName());
-			}
-		}
+	public BooleanProperty cancelDisabledProperty() {
+		return cancelDisabled;
+	}
+	
+	public void stop() {
+		close();
+		queryExecutor.shutdownNow();
+	}
+
+	public void forceStop() {
+		forceClose();
+		queryExecutor.shutdownNow();
 	}
 	
 	public void close() {
 		if(query != null) {
-			try {
-				if(query.isOpen()) {
-					query.close();
-				}
-			} catch(Exception e) {
-				//logger.warn("Impossible to close running query in Prolog engine " + prologEngine.getName());
+			if(query.isOpen()) {
+				queryExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							query.close();
+						} catch(Exception e) {
+							logger.warn("Impossible to close running query in Prolog engine " + prologEngineModel.getName());
+						}
+					}
+				});
 			}
 		}
 	}
 	
 	public void forceClose() {
 		if(query != null) {
-			if(queryInProgress.get()) {
+			if(isQueryInProgress() && isAbortable()) {
 				abort();
 			}
 			else {
@@ -154,25 +192,64 @@ public class SingleQueryModel implements QueryListener {
 		}
 	}
 	
-	public void nextSolution() {
-		if(query == null)
-			query = createQuery();
-		query.next();
+	public void abort() {
+		if(query != null) {
+			if(queryInProgress.get()) {
+				abortQueryExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							query.abort();
+						} catch(Exception e) {
+							logger.warn("Impossible to abort running query in Prolog engine " + prologEngineModel.getName());
+						}
+					}
+				});
+			}
+		}
+	}
+	
+	public void oneSolution() {
+		queryExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				if(query == null)
+					query = createQuery();
+				query.oneSolution();
+				
+			}
+		});
 	}
 	
 	public void allSolutions() {
-		if(query == null)
-			query = createQuery();
-		query.allSolutions();
+		queryExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				if(query == null)
+					query = createQuery();
+				query.allSolutions();
+			}
+		});
+	}
+	
+	public void nextSolution() {
+		queryExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				if(query == null)
+					query = createQuery();
+				query.next();
+			}
+		});
 	}
 	
 	
 	private ObservableQuery createQuery() {
 		String text = queryText.get();
 		queryHistory.getValue().add(0, text);
-		Query query = prologEngine.query(text);
+		Query query = prologEngineModel.query(text);
 		ObservableQuery observedQuery = new ObservableQuery(query, listeners);
-		isAbortable.set(query.isAbortable());
+		abortable.set(query.isAbortable());
 		return observedQuery;
 	}
 

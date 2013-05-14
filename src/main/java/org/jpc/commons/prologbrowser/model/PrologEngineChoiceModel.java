@@ -14,7 +14,7 @@ import javafx.scene.control.MultipleSelectionModel;
 import org.jpc.engine.provider.PrologEngineProvider;
 import org.minitoolbox.CollectionsUtil;
 
-public class PrologEngineChoiceModel implements PrologEngineProvider {
+public class PrologEngineChoiceModel implements PrologEngineProvider<PrologEngineModel> {
 
 	private BooleanProperty selectedEngineAvailable; //a property indicating if an engine is currently selected and it is available (not starting or shutting down)
 	private BooleanProperty selectedEngineCloseable; //a property indicating if the current selected engine can be stopped
@@ -52,7 +52,7 @@ public class PrologEngineChoiceModel implements PrologEngineProvider {
 					PrologEngineModel oldValue, PrologEngineModel newValue) {
 				PrologEngineModel prologEngineModel = getPrologEngine();
 				if(prologEngineModel != null) {
-					selectedEngineAvailable.bind(prologEngineModel.availableProperty());
+					selectedEngineAvailable.bind(prologEngineModel.readyProperty());
 					selectedEngineCloseable.bind(prologEngineModel.closeableProperty());
 				} else {
 					selectedEngineAvailable.unbind();

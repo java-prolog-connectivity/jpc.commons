@@ -1,4 +1,9 @@
 
+.tab-header-area {
+  -fx-padding: 0 0 0 40 ;
+}
+ 
+
 .jpc-container {
 	-fx-padding: 10;
 	-fx-font-weight: normal;
@@ -100,9 +105,6 @@
 	-fx-font: 14pt "Helvetica";
 	-fx-font-weight: normal;
 }
-
-
-
 
 
 

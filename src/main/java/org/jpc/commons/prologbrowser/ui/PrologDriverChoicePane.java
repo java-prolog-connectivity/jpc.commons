@@ -9,6 +9,7 @@ import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_WIDTH_LIS
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -55,9 +56,11 @@ public class PrologDriverChoicePane extends GridPane {
 		engineTypesLabel.getStyleClass().add(JPC_LIST_LABEL);
 		engineTypes.getStyleClass().add(JPC_LIST);
 		engineTypes.setPrefSize(JPC_PREFERRED_WIDTH_LIST, JPC_PREFERRED_HEIGHT_LIST);
+		engineTypes.setMinHeight(Control.USE_PREF_SIZE); //apparently this can be set using css in javafx8, remember to change it when migrating
 		prologDriversLabel.getStyleClass().add(JPC_LIST_LABEL);
 		prologDrivers.getStyleClass().add(JPC_LIST);
 		prologDrivers.setPrefSize(JPC_PREFERRED_WIDTH_LIST, JPC_PREFERRED_HEIGHT_LIST);
+		prologDrivers.setMinHeight(Control.USE_PREF_SIZE);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 	
@@ -72,14 +75,13 @@ public class PrologDriverChoicePane extends GridPane {
 			}
 		});
 
-		engineTypesLabel = new Label("Engine Type");
+		engineTypesLabel = new Label("Engines");
 		engineTypesLabel.setMaxWidth(Double.MAX_VALUE);
 		engineTypesLabel.setAlignment(Pos.CENTER);
 		
 		prologDriversLabel = new Label("Drivers");
 		prologDriversLabel.setMaxWidth(Double.MAX_VALUE);
 		prologDriversLabel.setAlignment(Pos.CENTER);
-		
 		
 		add(engineTypesLabel, 0, 0);
 		add(engineTypes, 0, 1);

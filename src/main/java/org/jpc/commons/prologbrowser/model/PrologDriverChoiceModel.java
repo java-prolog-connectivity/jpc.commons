@@ -14,6 +14,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.MultipleSelectionModel;
 
 import org.jpc.engine.listener.DriverStateListener;
+import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineDriver;
 import org.jpc.engine.provider.PrologEngineFactoryProvider;
 import org.jpc.util.DriverUtil;
@@ -28,7 +29,7 @@ import com.google.common.collect.Multimap;
  * @author sergioc
  *
  */
-public class PrologDriverChoiceModel implements PrologEngineFactoryProvider, DriverStateListener {
+public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<PrologEngine>, DriverStateListener {
 
 	private BooleanProperty selectedDriver;
 	private BooleanProperty selectedDriverEnabled;

@@ -20,13 +20,12 @@ public class StartPrologEnginePane extends HBox {
 	private Button startEngineButton;
 	
 	public StartPrologEnginePane(final PrologEngineFactory prologEngineFactory, BooleanProperty disabled) {
-		
 		setMaxWidth(Double.MAX_VALUE);
 		setAlignment(Pos.CENTER_RIGHT);
 		Image startImage = new Image(getClass().getResourceAsStream("start.png"));
 		startEngineButton = new Button("Start", new ImageView(startImage));
 		startEngineButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-		startEngineButton.setTooltip(new Tooltip("Start Prolog engine"));
+		startEngineButton.setTooltip(new Tooltip("Start engine"));
 		startEngineButton.disableProperty().bind(disabled);
 		startEngineButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override

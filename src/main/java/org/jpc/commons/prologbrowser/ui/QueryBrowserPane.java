@@ -33,9 +33,12 @@ public class QueryBrowserPane extends VBox {
 	private SettingsPane settingsPane;
 	
 	private Hyperlink queryTitle;
-	private SingleQueryPane queryPane;
+	private MultiQueryPane queryPane;
 
 	private ExecutorService executor;
+	//This declaration is important. Although the variable is just assigned in the code, it is used as a change listener in a weak set (weak sets do not keep objects marked for garbage collection). 
+	//If it would not have been declared as an instance variable it will be garbage collected and the controller will not work after a while.
+	private MultiQueryController multiQueryController; 
 	
 	public QueryBrowserPane(Application app, Iterable<PrologEngineDriver> drivers) {
 		executor = Executors.newCachedThreadPool();
@@ -49,7 +52,9 @@ public class QueryBrowserPane extends VBox {
 		togglePaneWhenHyperlinkClicked(logicConsolePane, logicConsoleTitle);
 		
 		queryTitle = new Hyperlink("Query");
-		queryPane = new SingleQueryPane();
+		//queryPane = new SingleQueryPane();
+		queryPane = new MultiQueryPane();
+		multiQueryController = new MultiQueryController(logicConsolePane.getPrologEngineChoiceModel(), queryPane);
 		togglePaneWhenHyperlinkClicked(queryPane, queryTitle);
 		
 		getChildren().addAll(settingsTitle, settingsPane, logicConsoleTitle, logicConsolePane, queryTitle, queryPane);
@@ -70,7 +75,7 @@ public class QueryBrowserPane extends VBox {
 
 	public void stop() {
 		logicConsolePane.stop();
-		executor.shutdownNow();
+		executor.shutdown();
 	}
 	
 	private void style() {

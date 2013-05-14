@@ -8,9 +8,10 @@ import org.jpc.engine.profile.LogtalkEngineProfile;
 import org.jpc.engine.profile.PreloaderEngineProfile;
 import org.jpc.engine.profile.PrologEngineProfile;
 import org.jpc.engine.profile.PrologEngineProfileFactory;
+import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
 
-public class SettingsModel implements PrologEngineProfileFactory {
+public class SettingsModel implements PrologEngineProfileFactory<PrologEngine> {
 
 	private BooleanProperty preloadLogtalkProperty;
 	private StringProperty entryFilePathProperty;
@@ -21,7 +22,7 @@ public class SettingsModel implements PrologEngineProfileFactory {
 	}
 
 	@Override
-	public PrologEngineProfile createPrologEngineProfile(PrologEngineFactory engineFactory) {
+	public PrologEngineProfile<PrologEngine> createPrologEngineProfile(PrologEngineFactory<PrologEngine> engineFactory) {
 		PrologEngineProfile profile = null;
 		if(preloadLogtalkProperty.getValue())
 			profile = new LogtalkEngineProfile(engineFactory);

@@ -10,6 +10,7 @@ import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_WIDTH_LIS
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PROGRESS_INDICATOR_SIZE;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -42,6 +43,7 @@ public class PrologEngineChoicePane extends GridPane {
 		engineInstanceLabel.getStyleClass().add(JPC_LIST_LABEL);
 		prologEngines.getStyleClass().add(JPC_LIST);
 		prologEngines.setPrefSize(JPC_PREFERRED_WIDTH_LIST, JPC_PREFERRED_HEIGHT_LIST);
+		prologEngines.setMinHeight(Control.USE_PREF_SIZE);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
 	
@@ -54,7 +56,7 @@ public class PrologEngineChoicePane extends GridPane {
 			}
 		});
 		
-		engineInstanceLabel = new Label("Prolog Sessions");
+		engineInstanceLabel = new Label("Sessions");
 		engineInstanceLabel.setMaxWidth(Double.MAX_VALUE);
 		engineInstanceLabel.setAlignment(Pos.CENTER);
 		
@@ -73,7 +75,7 @@ public class PrologEngineChoicePane extends GridPane {
 				ProgressIndicator progress = new ProgressIndicator();
 				progress.managedProperty().bind(progress.visibleProperty()); //so it will not use space when it is not visible
 				progress.setPrefSize(JPC_PROGRESS_INDICATOR_SIZE, JPC_PROGRESS_INDICATOR_SIZE);
-				progress.visibleProperty().bind(Bindings.not(prologEngineModel.availableProperty()));
+				progress.visibleProperty().bind(Bindings.not(prologEngineModel.readyProperty()));
 				Label prologEngineNameText = new Label(prologEngineModel.getName());
 				pane.getChildren().addAll(progress, prologEngineNameText);
 				pane.getStyleClass().add(JPC_PROLOG_ENGINE_ITEM);

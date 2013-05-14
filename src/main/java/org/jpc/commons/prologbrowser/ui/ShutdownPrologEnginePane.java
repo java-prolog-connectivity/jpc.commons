@@ -22,13 +22,12 @@ public class ShutdownPrologEnginePane extends HBox {
 	private Button shutdownEngineButton;
 	
 	public ShutdownPrologEnginePane(final PrologEngineProvider prologEngineProvider, final PrologEngineManager prologEngineManager, BooleanProperty disabled) {
-		
 		setMaxWidth(Double.MAX_VALUE);
 		setAlignment(Pos.CENTER_RIGHT);
 		Image shutdownImage = new Image(getClass().getResourceAsStream("shutdown.png"));
 		shutdownEngineButton = new Button("Shutdown", new ImageView(shutdownImage));
 		shutdownEngineButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-		shutdownEngineButton.setTooltip(new Tooltip("Shutdown Prolog engine"));
+		shutdownEngineButton.setTooltip(new Tooltip("Shutdown engine"));
 		shutdownEngineButton.disableProperty().bind(disabled);
 		shutdownEngineButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override

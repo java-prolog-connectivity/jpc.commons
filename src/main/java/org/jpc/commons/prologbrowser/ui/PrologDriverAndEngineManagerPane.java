@@ -43,6 +43,10 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		style();
 	}
 	
+	public PrologEngineChoiceModel getPrologEngineChoiceModel() {
+		return prologEngineChoiceModel;
+	}
+	
 	public void stop() {
 		prologEngineOrganizer.shutdownAll();
 	}
@@ -54,8 +58,9 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		PrologEngineChoicePane prologEngineChoicePane = new PrologEngineChoicePane();
 		prologEngineChoiceModel = prologEngineChoicePane.getModel();
 		prologEngineOrganizer = new PrologEngineOrganizer(driverChoiceModel, prologEngineChoiceModel, profileFactory, executor); //will register itself as an observer of the driver choice model
-		
 
+		AddDriverPane addDriverPane = new AddDriverPane(prologEngineOrganizer);
+		
 		BooleanProperty createEngineDisabled = new SimpleBooleanProperty();
 		createEngineDisabled.bind(Bindings.not(driverChoiceModel.selectedDriverEnabledProperty()));
 		StartPrologEnginePane startPrologEnginePane = new StartPrologEnginePane(prologEngineOrganizer, createEngineDisabled);
@@ -76,6 +81,7 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		driverAndEnginePane = new GridPane();
 		driverAndEnginePane.add(driverChooserPane, 0, 0, 2, 1);
 		driverAndEnginePane.add(prologEngineChoicePane, 2, 0);
+		//driverAndEnginePane.add(addDriverPane, 0,1);
 		driverAndEnginePane.add(startPrologEnginePane, 1,1);
 		driverAndEnginePane.add(shutdownPrologEnginePane, 2,1);
 		

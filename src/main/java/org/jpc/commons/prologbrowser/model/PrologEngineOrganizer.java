@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author sergioc
  *
  */
-public class PrologEngineOrganizer implements PrologEngineManager, PrologEngineFactoryInvalidatedListener, PrologEngineLifeCycleListener {
+public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>, PrologEngineFactoryInvalidatedListener, PrologEngineLifeCycleListener {
 
 	private static Logger logger = LoggerFactory.getLogger(PrologEngineOrganizer.class);
 	
@@ -58,7 +58,7 @@ public class PrologEngineOrganizer implements PrologEngineManager, PrologEngineF
 		}
 		driverChoiceModel.addDriverSelectionObserver(this);
 	}
-
+	
 	public Set<PrologEngineModel> getPrologEngines() {
 		Set<PrologEngineModel> prologEngines = new HashSet<>();
 		for(Entry<PrologEngineFactory, ObservableList<PrologEngineModel>> entry : driverMap.entrySet()) {
@@ -109,7 +109,33 @@ public class PrologEngineOrganizer implements PrologEngineManager, PrologEngineF
 		});
 	}
 
+	public boolean queriesInProgress() {
+		for(PrologEngineModel prologEngineModel : getPrologEngines()) {
+			if(prologEngineModel.queriesInProgress())
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean nonAbortableQueriesInProgress() {
+		for(PrologEngineModel prologEngineModel : getPrologEngines()) {
+			if(prologEngineModel.nonAbortableQueriesInProgress())
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean stopAllQueries() {
+		boolean success = true; 
+		for(PrologEngineModel prologEngineModel : getPrologEngines()) {
+			if(!prologEngineModel.stopQueries())
+				success = false;
+		}
+		return success;
+	}
+	
 	public void shutdownAll() {
+		//stopAllQueries();
 		for(PrologEngineModel prologEngine : getPrologEngines()) {
 			if(prologEngine.isCloseable()) {
 				try {
