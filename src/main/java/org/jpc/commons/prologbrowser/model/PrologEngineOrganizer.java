@@ -111,7 +111,7 @@ public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>,
 
 	public boolean queriesInProgress() {
 		for(PrologEngineModel prologEngineModel : getPrologEngines()) {
-			if(prologEngineModel.queriesInProgress())
+			if(prologEngineModel.isQueryInProgress())
 				return true;
 		}
 		return false;
@@ -119,7 +119,7 @@ public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>,
 	
 	public boolean nonAbortableQueriesInProgress() {
 		for(PrologEngineModel prologEngineModel : getPrologEngines()) {
-			if(prologEngineModel.nonAbortableQueriesInProgress())
+			if(prologEngineModel.isNonAbortableQueryInProgress())
 				return true;
 		}
 		return false;

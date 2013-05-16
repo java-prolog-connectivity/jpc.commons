@@ -16,8 +16,11 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
+import org.jpc.commons.prologbrowser.model.PrologEngineOrganizer;
 import org.jpc.engine.prolog.driver.PrologEngineDriver;
 import org.minitoolbox.fx.FXUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The main pane of the query browser
@@ -26,6 +29,8 @@ import org.minitoolbox.fx.FXUtil;
  */
 public class QueryBrowserPane extends VBox {
 
+	private static Logger logger = LoggerFactory.getLogger(QueryBrowserPane.class);
+	
 	private Hyperlink logicConsoleTitle;
 	private PrologDriverAndEngineManagerPane logicConsolePane;
 	
@@ -56,7 +61,9 @@ public class QueryBrowserPane extends VBox {
 		queryPane = new MultiQueryPane();
 		multiQueryController = new MultiQueryController(logicConsolePane.getPrologEngineChoiceModel(), queryPane);
 		togglePaneWhenHyperlinkClicked(queryPane, queryTitle);
-		
+		//queryPane.setPrefWidth(getWidth());
+		//queryPane.setMaxWidth(getWidth());
+		//queryPane.setMaxWidth(Double.MAX_VALUE);
 		getChildren().addAll(settingsTitle, settingsPane, logicConsoleTitle, logicConsolePane, queryTitle, queryPane);
 		setFocusTraversable(true);
 		requestFocus();
@@ -74,7 +81,12 @@ public class QueryBrowserPane extends VBox {
 	}
 
 	public void stop() {
-		logicConsolePane.stop();
+		PrologEngineOrganizer organizer = logicConsolePane.getPrologEngineOrganizer();
+//		if(organizer.nonAbortableQueriesInProgress())
+//			logger.warn("Some executing queries cannot be stopped."); //TODO ask for confirmation
+		if(!organizer.stopAllQueries())
+			logger.warn("Some executing queries could not be stopped.");
+		organizer.shutdownAll();
 		executor.shutdown();
 	}
 	

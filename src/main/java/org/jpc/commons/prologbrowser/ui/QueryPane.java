@@ -2,9 +2,15 @@ package org.jpc.commons.prologbrowser.ui;
 
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
+import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_QUERY_STATUS;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TOOLBAR_CONTAINER;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TOOLBAR_GROUP_PANE;
+
+import java.io.File;
+
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -13,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
@@ -21,16 +28,21 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 
-import org.jpc.commons.prologbrowser.model.SingleQueryModel;
+import org.jpc.commons.prologbrowser.model.QueryModel;
+import org.jpc.resource.LogtalkResource;
+import org.jpc.resource.PrologResource;
+import org.minitoolbox.fx.FXUtil;
 
 /**
  * @author sergioc
  *
  */
-public class SingleQueryPane extends VBox {
-	
-	private SingleQueryModel model;
+public class QueryPane extends VBox {
+
+	private QueryModel model;
 
 	private ToolBar toolbarPane;
 	//private HBox firstRowToolBar;
@@ -40,7 +52,7 @@ public class SingleQueryPane extends VBox {
 	private Button oneSolutionButton;
 	private Button allSolutionsButton;
 	private Button nextSolutionButton;
-	private Button cancelQueryButton; //if there is an executing query aborts it
+	private Button cancelQueryButton;
 	
 	private HBox prologShortcutsButtonsPane;
 	private Button consultButton;
@@ -56,22 +68,28 @@ public class SingleQueryPane extends VBox {
 	private Button clearTextButton;
 	private Button copyToClipboardButton;
 	
-	
+	private TextField status;
 	private TextArea queryTextArea;
 	
-	public SingleQueryPane() {
+	private BooleanProperty engineIsQueried; //holds true if there is any query in progress in the same Prolog engine where this query is executed.
+	private BooleanProperty engineIsMultiThreaded; //holds true if the Prolog engine where this query is executed is multithreaded.
+	
+	public QueryPane() {
 		draw();
 		addListeners();
 		style();
 		disable();
 	}
 	
-	public SingleQueryPane(SingleQueryModel model) {
+	public QueryPane(QueryModel model) {
 		this();
 		setModel(model);
 	}
 	
 	private void draw() {
+		engineIsQueried = new SimpleBooleanProperty();
+		engineIsMultiThreaded = new SimpleBooleanProperty();
+		
 		history = new ComboBox<>();
 		history.setPromptText("Query history");
 		//history.setPrefWidth(JPC_QUERY_HISTORY_PREFERRED_WIDTH);
@@ -152,7 +170,7 @@ public class SingleQueryPane extends VBox {
 
 		queryTextArea = new TextArea();
 		
-		queryButtonsPane.getChildren().addAll(oneSolutionButton, allSolutionsButton, nextSolutionButton, cancelQueryButton);
+		queryButtonsPane.getChildren().addAll(allSolutionsButton, oneSolutionButton, nextSolutionButton, cancelQueryButton);
 		editionButtonsPane.getChildren().addAll(saveButton, openButton, clearTextButton, copyToClipboardButton);
 		prologShortcutsButtonsPane.getChildren().addAll(consultButton, ensureLoadedButton);
 		logtalkShortcutsButtonsPane.getChildren().addAll(logtalkLoadButton, logtalkLoadLibraryButton);
@@ -172,31 +190,40 @@ public class SingleQueryPane extends VBox {
 //		firstRowToolBar.getChildren().addAll(queryButtonsPane, fileLoaderButtonsPane, editionButtonsPane);
 //		vBoxToolBar.getChildren().addAll(firstRowToolBar, history);
 //		toolbarPane.getItems().addAll(vBoxToolBar);
-		
-		getChildren().addAll(toolbarPane, queryTextArea, history);
-		
+
+		toolbarPane.setPrefWidth(getWidth());
+			
+		//toolbarPane.setMaxWidth(Double.MAX_VALUE);
+		//toolbarPane.setMaxWidth(getWidth());
 		//toolbarPane.setMaxWidth(USE_PREF_SIZE);
-		//HBox.setHgrow(toolbarPane, Priority.NEVER);
+		//HBox.setHgrow(toolbarPane, Priority.ALWAYS);		
+				
+		status = new TextField();
+		status.setEditable(false);
+		getChildren().addAll(toolbarPane, queryTextArea, status, history);
+
 	}
 
 	
-	public void setModel(SingleQueryModel model) {
+	public void setModel(QueryModel model) {
 		resetModel();
 		this.model = model;
+		engineIsQueried.bind(model.getPrologEngineModel().queryInProgressProperty());
+		engineIsMultiThreaded.bind(model.getPrologEngineModel().multiThreadedProperty());
 		queryTextArea.textProperty().bindBidirectional(model.queryTextProperty());
-		queryTextArea.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+		queryTextArea.editableProperty().bind(model.queryTextEditableProperty());
 		history.itemsProperty().bind(model.queryHistoryProperty());
 		history.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
-		
+		status.textProperty().bind(model.statusMessageProperty());
 		oneSolutionButton.disableProperty().bind(model.oneSolutionDisabledProperty());
 		allSolutionsButton.disableProperty().bind(model.allSolutionsDisabledProperty());
 		nextSolutionButton.disableProperty().bind(model.nextSolutionDisabledProperty());
 		cancelQueryButton.disableProperty().bind(model.cancelDisabledProperty());
 		
-		consultButton.disableProperty().bind(model.oneSolutionDisabledProperty());
-		ensureLoadedButton.disableProperty().bind(model.oneSolutionDisabledProperty());
-		logtalkLoadButton.disableProperty().bind(model.oneSolutionDisabledProperty());
-		logtalkLoadLibraryButton.disableProperty().bind(model.oneSolutionDisabledProperty());
+		consultButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+		ensureLoadedButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+		logtalkLoadButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+		logtalkLoadLibraryButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
 		
 		openButton.disableProperty().bind(Bindings.or(Bindings.not(model.queryTextAvailableProperty()), Bindings.not(model.queryTextEditableProperty())));
 		saveButton.disableProperty().bind(Bindings.not(model.queryTextAvailableProperty()));
@@ -207,9 +234,12 @@ public class SingleQueryPane extends VBox {
 	public void resetModel() {
 		if(model != null)
 			queryTextArea.textProperty().unbindBidirectional(model.queryTextProperty());
-		queryTextArea.disableProperty().unbind();
+		engineIsQueried.unbind();
+		engineIsMultiThreaded.unbind();
+		queryTextArea.editableProperty().unbind();
 		history.itemsProperty().unbind();
 		history.disableProperty().unbind();
+		status.textProperty().unbind();
 		
 		oneSolutionButton.disableProperty().unbind();
 		allSolutionsButton.disableProperty().unbind();
@@ -229,7 +259,7 @@ public class SingleQueryPane extends VBox {
 	}
 	
 	public void disable() {
-		queryTextArea.disableProperty().set(true);
+		queryTextArea.editableProperty().set(false);
 		history.disableProperty().set(true);
 		oneSolutionButton.disableProperty().set(true);
 		allSolutionsButton.disableProperty().set(true);
@@ -243,6 +273,26 @@ public class SingleQueryPane extends VBox {
 		saveButton.disableProperty().set(true);
 		clearTextButton.disableProperty().set(true);
 		copyToClipboardButton.disableProperty().set(true);
+	}
+	
+	private File selectPrologFile() {
+		FileChooser fc = new FileChooser();
+		ExtensionFilter ef = FXUtil.createExtensionFilter("Prolog files", PrologResource.getPrologExtensions());
+		fc.getExtensionFilters().addAll(ef);
+		fc.setTitle("Select Prolog file");
+		//fc.setInitialDirectory(new File(System.getProperty("user.dir") + File.separator));
+		File selectedFile = fc.showOpenDialog(QueryPane.this.getScene().getWindow());
+		return selectedFile;
+	}
+	
+	private File selectLogtalkFile() {
+		FileChooser fc = new FileChooser();
+		ExtensionFilter ef = FXUtil.createExtensionFilter("Logtalk files", LogtalkResource.getLogtalkExtensions());
+		fc.getExtensionFilters().addAll(ef);
+		fc.setTitle("Select Logtalk file");
+		//fc.setInitialDirectory(new File(System.getProperty("user.dir") + File.separator));
+		File selectedFile = fc.showOpenDialog(QueryPane.this.getScene().getWindow());
+		return selectedFile;
 	}
 	
 	private void addListeners() {
@@ -272,10 +322,57 @@ public class SingleQueryPane extends VBox {
 		cancelQueryButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
+				model.resetState();
 				model.forceClose();
 			}
 		});
 		
+		consultButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				File selectedFile = selectPrologFile();
+				if(selectedFile != null) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("consult('");
+					sb.append(selectedFile.getAbsolutePath());
+					sb.append("')");
+					queryTextArea.setText(sb.toString());
+					model.oneSolution();
+				}
+			}
+		});
+		
+		ensureLoadedButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				File selectedFile = selectPrologFile();
+				if(selectedFile != null) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("ensure_loaded('");
+					sb.append(selectedFile.getAbsolutePath());
+					sb.append("')");
+					queryTextArea.setText(sb.toString());
+					model.oneSolution();
+				}
+			}
+		});
+		
+		logtalkLoadButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				File selectedFile = selectLogtalkFile();
+				if(selectedFile != null) {
+					StringBuilder sb = new StringBuilder();
+					sb.append("logtalk_load('");
+					sb.append(selectedFile.getAbsolutePath());
+					sb.append("')");
+					queryTextArea.setText(sb.toString());
+					model.oneSolution();
+				}
+			}
+		});
+		
+
 		
 		// EDITOR BUTTONS
 		clearTextButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -307,6 +404,7 @@ public class SingleQueryPane extends VBox {
 	
 	private void style() {
 		getStyleClass().addAll(JPC_GRID);
+		status.getStyleClass().add(JPC_QUERY_STATUS);
 		queryButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		prologShortcutsButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		logtalkShortcutsButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);

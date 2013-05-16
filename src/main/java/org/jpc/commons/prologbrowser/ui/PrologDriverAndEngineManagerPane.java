@@ -47,9 +47,13 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		return prologEngineChoiceModel;
 	}
 	
-	public void stop() {
-		prologEngineOrganizer.shutdownAll();
+	public PrologEngineOrganizer getPrologEngineOrganizer() {
+		return prologEngineOrganizer;
 	}
+	
+//	public void stop() {
+//		prologEngineOrganizer.shutdownAll();
+//	}
 	
 	private void draw() {
 		PrologDriverChoicePane driverChooserPane = new PrologDriverChoicePane(drivers, app);

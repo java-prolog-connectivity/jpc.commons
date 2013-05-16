@@ -1,5 +1,7 @@
 package org.jpc.commons.prologbrowser.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javafx.beans.binding.Bindings;
@@ -12,9 +14,9 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 
-public class MultiQueryModel implements ListChangeListener<SingleQueryModel> {
+public class MultiQueryModel implements ListChangeListener<QueryModel> {
 
-	private ObservableList<SingleQueryModel> queries;
+	private ObservableList<QueryModel> queries;
 	private PrologEngineModel prologEngineModel;
 	private BooleanProperty queryInProgress;
 	private IntegerProperty focusedIndex;
@@ -30,13 +32,13 @@ public class MultiQueryModel implements ListChangeListener<SingleQueryModel> {
 		focusedIndex = new SimpleIntegerProperty(0);
 	}
 	
-	public SingleQueryModel createSingleQueryModel() {
-		SingleQueryModel singleQueryModel = new SingleQueryModel(prologEngineModel, executor);
+	public QueryModel createSingleQueryModel() {
+		QueryModel singleQueryModel = new QueryModel(prologEngineModel, executor);
 		queries.add(singleQueryModel);
 		return singleQueryModel;
 	}
 	
-	public ObservableList<SingleQueryModel> getQueries() {
+	public ObservableList<QueryModel> getQueries() {
 		return queries;
 	}
 	
@@ -50,7 +52,7 @@ public class MultiQueryModel implements ListChangeListener<SingleQueryModel> {
 	
 	private void refreshQueryInProgress() {
 		BooleanProperty newQueryInProgress = new SimpleBooleanProperty(false);
-		for(SingleQueryModel query : queries) {
+		for(QueryModel query : queries) {
 			BooleanProperty booleanPropertyAux = new SimpleBooleanProperty();
 			booleanPropertyAux.bind(Bindings.or(newQueryInProgress, query.queryInProgressProperty()));
 			newQueryInProgress = booleanPropertyAux;
@@ -61,7 +63,7 @@ public class MultiQueryModel implements ListChangeListener<SingleQueryModel> {
 	}
 	
 	@Override
-	public void onChanged(javafx.collections.ListChangeListener.Change<? extends SingleQueryModel> change) {
+	public void onChanged(javafx.collections.ListChangeListener.Change<? extends QueryModel> change) {
 		refreshQueryInProgress();
 	}
 	
@@ -69,20 +71,16 @@ public class MultiQueryModel implements ListChangeListener<SingleQueryModel> {
 	 * 
 	 * @return true if at least one query is in progress. false otherwise.
 	 */
-	public boolean queriesInProgress() {
-		for(SingleQueryModel query : queries) {
-			if(query.isQueryInProgress())
-				return true;
-		}
-		return false;
+	public boolean isQueryInProgress() {
+		return queryInProgress.get();
 	}
 	
 	/**
 	 * 
 	 * @return true if at least one query is non-abortable and in progress. false otherwise.
 	 */
-	public boolean nonAbortableQueriesInProgress() {
-		for(SingleQueryModel query : queries) {
+	public boolean isNonAbortableQueryInProgress() {
+		for(QueryModel query : queries) {
 			if(query.isQueryInProgress() && !query.isAbortable())
 				return true;
 		}
@@ -95,16 +93,21 @@ public class MultiQueryModel implements ListChangeListener<SingleQueryModel> {
 	 */
 	public boolean stop() {
 		boolean success = true;
-		for(SingleQueryModel query : queries) {
-			if(query.isQueryInProgress() && !query.isAbortable())
+		List<QueryModel> closedQueries = new ArrayList<>();
+		for(QueryModel query : queries) {
+			if(query.isQueryInProgress() && !query.isAbortable()) {
 				success = false;
-			else
-				dispose(query);
+			} else {
+				query.forceStop();
+				closedQueries.add(query);
+			}
 		}
+		//to avoid a ConcurrentModificationException the closed queries are eliminated from the query list in a second step
+		queries.removeAll(closedQueries);
 		return success;
 	}
 	
-	public void dispose(SingleQueryModel query) {
+	public void dispose(QueryModel query) {
 		query.forceStop();
 		queries.remove(query);
 	}

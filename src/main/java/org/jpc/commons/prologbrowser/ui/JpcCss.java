@@ -23,7 +23,9 @@ public class JpcCss {
 	public static final String JPC_TITLE = "jpc-title";
 	public static final String JPC_LIST = "jpc-list";
 	public static final String JPC_LIST_LABEL = "jpc-list-label";
+	public static final String JPC_QUERY_STATUS = "jpc-query-status";
 	public static final String JPC_PROLOG_ENGINE_ITEM = "jpc-prolog-engine-item";
+	public static final String JPC_QUERY_TAB_HEADER = "jpc-query-tab-header";
 	public static final String JPC_TOOLBAR_CONTAINER = "jpc-toolbar-container";
 	public static final String JPC_TOOLBAR_GROUP_PANE = "jpc-toolbar-group-pane";
 	public static final String JPC_BUTTON = "jpc-button";
@@ -34,7 +36,5 @@ public class JpcCss {
 	public static final String DRIVER_NAME_LABEL = "jpc-driver-name-label";
 	public static final String DRIVER_DESCRIPTION_LABEL = "jpc-driver-description-label";
 	
-	
 	public static final String JPC_QUERY_BROWSER_LAUNCHER = "jpc-query-browser-launcher";
-
 }

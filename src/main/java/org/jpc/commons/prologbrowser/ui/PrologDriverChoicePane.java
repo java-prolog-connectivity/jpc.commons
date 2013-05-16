@@ -106,7 +106,7 @@ public class PrologDriverChoicePane extends GridPane {
 			            	Window owner = getScene().getWindow();
 			            	PrologEngineDriver driver = ((PrologEngineConfigurationCell)mouseEvent.getSource()).getItem();
 			            	if(driver != null) {
-			            		new AboutDriverDialogStage(owner, app, driver).show();
+			            		new AboutDriverStage(owner, app, driver).show();
 			            	}
 			            }
 			        }

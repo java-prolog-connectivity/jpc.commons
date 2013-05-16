@@ -13,14 +13,14 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 
 import org.jpc.commons.prologbrowser.model.MultiQueryModel;
-import org.jpc.commons.prologbrowser.model.SingleQueryModel;
+import org.jpc.commons.prologbrowser.model.QueryModel;
 
 public class MultiQueryPane extends AnchorPane {
 
 	private TabPane tabPane;
 	private Button addButton;
 	private MultiQueryModel multiQueryModel;
-	private SingleQueryTab defaultEmptyQueryTab;
+	private QueryTab defaultEmptyQueryTab;
 	
 	public MultiQueryPane() {
 		draw();
@@ -29,7 +29,7 @@ public class MultiQueryPane extends AnchorPane {
 	}
 	
     private void draw() {
-    	defaultEmptyQueryTab = new SingleQueryTab();
+    	defaultEmptyQueryTab = new QueryTab();
     	tabPane = new TabPane();
 		addButton = new Button("+");
 		getChildren().addAll(tabPane, addButton);
@@ -44,7 +44,7 @@ public class MultiQueryPane extends AnchorPane {
 		addButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 		    public void handle(ActionEvent event) {
-				SingleQueryModel singleQueryModel = multiQueryModel.createSingleQueryModel();
+				QueryModel singleQueryModel = multiQueryModel.createSingleQueryModel();
 				addTab(singleQueryModel);
 		     }
 		});
@@ -55,7 +55,7 @@ public class MultiQueryPane extends AnchorPane {
     		return;
     	clear();
     	this.multiQueryModel = multiQueryModel;
-    	for(SingleQueryModel singleQueryModel : multiQueryModel.getQueries()) {
+    	for(QueryModel singleQueryModel : multiQueryModel.getQueries()) {
     		addTab(singleQueryModel);
     	}
     	addButton.disableProperty().set(false);
@@ -80,17 +80,17 @@ public class MultiQueryPane extends AnchorPane {
     	addTab(defaultEmptyQueryTab);
     }
     
-    private void addTab(SingleQueryModel singleQueryModel) {
-    	addTab(new SingleQueryTab(singleQueryModel));
+    private void addTab(QueryModel singleQueryModel) {
+    	addTab(new QueryTab(singleQueryModel));
     }
 
-    private void addTab(SingleQueryTab tab) {
+    private void addTab(QueryTab tab) {
     	ObservableList<Tab> tabs = tabPane.getTabs();
     	tabs.add(tab);
     	tab.setOnClosed(new EventHandler<Event>(){
 			@Override
 			public void handle(Event event) {
-				SingleQueryTab closedTab = (SingleQueryTab) event.getSource();
+				QueryTab closedTab = (QueryTab) event.getSource();
 				multiQueryModel.getQueries().remove(closedTab.getModel());
 			}
     	});

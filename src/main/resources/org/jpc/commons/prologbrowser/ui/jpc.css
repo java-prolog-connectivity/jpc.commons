@@ -68,10 +68,18 @@
 	-fx-spacing: 2;
 }
 
+.jpc-query-status {
+	-fx-text-fill: rgb(49, 89, 23);
+}
+
 /**
  * TODO delete?
  */
 .jpc-prolog-engine-item {
+	-fx-spacing: 8;
+}
+
+.jpc-query-tab-header {
 	-fx-spacing: 8;
 }
 

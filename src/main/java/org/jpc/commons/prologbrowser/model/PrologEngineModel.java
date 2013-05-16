@@ -21,6 +21,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 
 	private BooleanProperty ready;
 	private BooleanProperty closeable;
+	private BooleanProperty multiThreaded;
 	private StringProperty name;
 	private double startupTime; //the time the Prolog engine was created
 	private Executor executor;
@@ -31,6 +32,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 	public PrologEngineModel(Executor executor) {
 		ready = new SimpleBooleanProperty(false); //it is not yet available when just initialized
 		closeable = new SimpleBooleanProperty(false);
+		multiThreaded = new SimpleBooleanProperty(false);
 		name = new SimpleStringProperty();
 		
 		this.executor = executor;
@@ -105,6 +107,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 					@Override
 					public void run() {
 						ready.set(true);
+						multiThreaded.set(PrologEngineModel.super.isMultiThreaded());
 						refreshCloseable();
 						notifyOnCreation();
 					}
@@ -119,6 +122,10 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		} else {
 			closeable.bind(Bindings.not(multiQueryModel.queryInProgressProperty()));
 		}
+	}
+	
+	public BooleanProperty multiThreadedProperty() {
+		return multiThreaded;
 	}
 	
 	public BooleanProperty closeableProperty() {
@@ -168,12 +175,16 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		}
 	}
 
-	public boolean queriesInProgress() {
-		return multiQueryModel.queriesInProgress();
+	public BooleanProperty queryInProgressProperty() {
+		return multiQueryModel.queryInProgressProperty();
 	}
 	
-	public boolean nonAbortableQueriesInProgress() {
-		return multiQueryModel.nonAbortableQueriesInProgress();
+	public boolean isQueryInProgress() {
+		return multiQueryModel.isQueryInProgress();
+	}
+	
+	public boolean isNonAbortableQueryInProgress() {
+		return multiQueryModel.isNonAbortableQueryInProgress();
 	}
 	
 	public boolean stopQueries() {
