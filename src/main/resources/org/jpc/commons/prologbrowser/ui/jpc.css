@@ -92,9 +92,9 @@
 }
 
 
-.jpc-about-driver-footer {
+.jpc-footer {
 	-fx-background-color: RGB(232,232,232);
-	-fx-padding: 10;
+	-fx-padding: 10,0,10,0;
 }
 
 .jpc-about-driver-footer-link {

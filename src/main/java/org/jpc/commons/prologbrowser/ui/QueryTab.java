@@ -22,6 +22,8 @@ public class QueryTab extends Tab {
 	private QueryModel queryModel;
 	private Label titleLabel;
 	private HBox tabHeader;
+	QueryPane singleQueryPane;
+	
 	public QueryTab() {
 		this(null);
 	}
@@ -29,7 +31,7 @@ public class QueryTab extends Tab {
 	public QueryTab(QueryModel queryModel) {
 		this.queryModel = queryModel;
 		this.titleLabel = new Label();
-		QueryPane singleQueryPane = new QueryPane();
+		singleQueryPane = new QueryPane();
 		if(queryModel != null)
 			singleQueryPane.setModel(queryModel);
     	setContent(singleQueryPane);
@@ -55,7 +57,7 @@ public class QueryTab extends Tab {
 		progress.setPrefSize(JPC_PROGRESS_INDICATOR_SIZE, JPC_PROGRESS_INDICATOR_SIZE);
 		BooleanProperty progressVisibleProperty = new SimpleBooleanProperty(false);
 		if(queryModel != null) {
-			progressVisibleProperty = queryModel.queryInProgressProperty();
+			progressVisibleProperty = singleQueryPane.busyProperty();
 			
 			queryModel.queryTextProperty().addListener(new WeakChangeListener<String>(new ChangeListener<String>() {
 				@Override

@@ -1,5 +1,6 @@
 package org.jpc.commons.prologbrowser.ui;
 
+import org.jpc.commons.prologbrowser.model.MultiQueryModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineChoiceModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineInvalidatedListener;
 import org.jpc.commons.prologbrowser.model.PrologEngineModel;
@@ -18,10 +19,14 @@ public class MultiQueryController implements PrologEngineInvalidatedListener {
 	@Override
 	public void onPrologEngineInvalidated() {
 		PrologEngineModel prologEngineModel = engineChoiceModel.getPrologEngine();
-		if(prologEngineModel != null)
-			multiQueryPane.setMultiQueryModel(prologEngineModel.getMultiQueryModel());
-		else
+		if(prologEngineModel != null) {
+			MultiQueryModel multiQueryModel = prologEngineModel.getMultiQueryModel();
+			if(multiQueryModel.getQueries().isEmpty())
+				multiQueryModel.createSingleQueryModel();
+			multiQueryPane.setMultiQueryModel(multiQueryModel);
+		} else {
 			multiQueryPane.reset();
+		}
 	}
 	
 }

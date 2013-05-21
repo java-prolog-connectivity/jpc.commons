@@ -25,8 +25,8 @@ public class AddDriverPane extends HBox{
 		
 		setMaxWidth(Double.MAX_VALUE);
 		setAlignment(Pos.CENTER_RIGHT);
-		Image startImage = new Image(getClass().getResourceAsStream("add_driver.png"));
-		addDriverButton = new Button("Add driver", new ImageView(startImage));
+		Image addDriverImage = BrowserImage.addDriverImage();
+		addDriverButton = new Button("Add driver", new ImageView(addDriverImage));
 		addDriverButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		addDriverButton.setTooltip(new Tooltip("Add engine driver"));
 		addDriverButton.setOnAction(new EventHandler<ActionEvent>() {

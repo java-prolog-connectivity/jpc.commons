@@ -2,10 +2,7 @@ package org.jpc.commons.prologbrowser.model;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -22,10 +19,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import org.jpc.error.PrologError;
+import org.jpc.error.PrologParsingException;
 import org.jpc.query.ObservableQuery;
 import org.jpc.query.Query;
 import org.jpc.query.QueryListener;
-import org.jpc.term.Term;
+import org.jpc.query.QuerySolution;
 import org.minitoolbox.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
@@ -38,19 +36,25 @@ public class QueryModel implements QueryListener {
 	//private File file; //a file in the file system where this query is persisted
 	private Collection<QueryListener> listeners;
 	
-	private Executor abortQueryExecutor;
-	private ExecutorService queryExecutor; //a dedicated executor
-	//MAIN PROPERTIES
+	//private Executor abortQueryExecutor;
+	private Executor queryExecutor; //a dedicated executor
+	
+	//ENGINE PROPERTIES
 	private BooleanProperty engineReady;
+	private BooleanProperty engineIsQueried; //holds true if there is any query in progress in the same Prolog engine where this query is executed.
+	private BooleanProperty engineIsMultiThreaded; //holds true if the Prolog engine where this query is executed is multithreaded.
+	
+	
+	//QUERY PROPERTIES
 	private Property<ObservableList<String>> queryHistory;
 	private StringProperty queryText;
 	private BooleanProperty queryOpen;
-	private BooleanProperty queryInProgress;
+	private BooleanProperty queryInProgress;  //holds true if this query is in progress
 	private BooleanProperty queryExhausted;
 	private LongProperty numberSolutions;
 	private LongProperty queryMilliseconds;
 	private LongProperty startTime;
-	//DERIVED PROPERTIES
+	//DERIVED QUERY PROPERTIES
 	private BooleanProperty queryTextEditable;
 	private BooleanProperty queryTextAvailable;
 	private BooleanProperty oneSolutionDisabled;
@@ -64,14 +68,19 @@ public class QueryModel implements QueryListener {
 
 	private StringProperty statusMessage;
 	
-	public QueryModel(PrologEngineModel prologEngineModel, Executor abortQueryExecutor) {
-		this.abortQueryExecutor = abortQueryExecutor;
+	public QueryModel(PrologEngineModel prologEngineModel, Executor queryExecutor) {
 		this.prologEngineModel = prologEngineModel;
-		engineReady = prologEngineModel.readyProperty();
-		queryExecutor = Executors.newSingleThreadExecutor();
+		this.queryExecutor = queryExecutor;
+		//queryExecutor = Executors.newSingleThreadExecutor();
 		//queryExecutor = Executors.newSingleThreadExecutor(new OneThreadFactory());
 		//queryExecutor = new OneThreadExecutor();
-				
+		//this.abortQueryExecutor = abortQueryExecutor;
+		this.engineReady = prologEngineModel.readyProperty();
+		this.engineIsQueried = prologEngineModel.queryInProgressProperty();
+		this.engineIsMultiThreaded = prologEngineModel.multiThreadedProperty();
+		BooleanProperty nonMultiThreadedEngineIsQueried = new SimpleBooleanProperty(); //holds true if the engine that spawned the query is not multithreaded and there is aslready a query in progress.
+		nonMultiThreadedEngineIsQueried.bind(engineIsQueried.and(Bindings.not(engineIsMultiThreaded)));
+		
 		queryHistory = new SimpleObjectProperty<>(FXCollections.<String>observableArrayList());
 		listeners = CollectionsUtil.createWeakSet();
 		listeners.add(this); //the query model is a listener of the observed query. More listeners can be registered.
@@ -96,12 +105,13 @@ public class QueryModel implements QueryListener {
 					queryTextAvailable.set(true);
 			}
 		});
+		
 		oneSolutionDisabled = new SimpleBooleanProperty(true);
-		oneSolutionDisabled.bind(Bindings.not(engineReady).or(Bindings.not(queryTextAvailable).or(queryExhausted).or(queryOpen)));
+		oneSolutionDisabled.bind(Bindings.not(engineReady).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted).or(queryOpen));
 		allSolutionsDisabled = new SimpleBooleanProperty(true);
-		allSolutionsDisabled.bind(Bindings.not(engineReady).or(Bindings.not(queryTextAvailable).or(queryExhausted).or(queryOpen)));
+		allSolutionsDisabled.bind(Bindings.not(engineReady).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted).or(queryOpen));
 		nextSolutionDisabled = new SimpleBooleanProperty(true);
-		nextSolutionDisabled.bind(Bindings.not(engineReady).or(Bindings.not(queryTextAvailable).or(queryExhausted)));
+		nextSolutionDisabled.bind(Bindings.not(engineReady).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted));
 		abortable = new SimpleBooleanProperty(false); //this property will be updated when a query is created
 		cancelDisabled = new SimpleBooleanProperty(true);
 		cancelDisabled.bind(Bindings.not(queryOpen).and(Bindings.not(queryInProgress).or(Bindings.not(abortable))));
@@ -113,6 +123,10 @@ public class QueryModel implements QueryListener {
 
 	public PrologEngineModel getPrologEngineModel() {
 		return prologEngineModel;
+	}
+	
+	public Executor getExecutor() {
+		return queryExecutor;
 	}
 	
 	private void updateStatus() {
@@ -140,11 +154,12 @@ public class QueryModel implements QueryListener {
 			else //more than 10 seconds
 				sb.append( (queryMilliseconds.get()/1000) + " seconds"); //show it in seconds and do not preserve decimals
 			
+			sb.append(".");
 			updateStatus(sb.toString());
 		}
 	}
 	
-	private void updateStatus(final String message) {
+	public void updateStatus(final String message) {
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
@@ -185,6 +200,10 @@ public class QueryModel implements QueryListener {
 	
 	public Property<ObservableList<String>> queryHistoryProperty() {
 		return queryHistory;
+	}
+	
+	public void setQueryText(String text) {
+		queryText.set(text);
 	}
 	
 	public StringProperty queryTextProperty() {
@@ -237,12 +256,12 @@ public class QueryModel implements QueryListener {
 	
 	public void stop() {
 		close();
-		queryExecutor.shutdownNow();
+		//queryExecutor.shutdownNow();
 	}
 
 	public void forceStop() {
 		forceClose();
-		queryExecutor.shutdownNow();
+		//queryExecutor.shutdownNow();
 	}
 	
 	public void close() {
@@ -276,7 +295,7 @@ public class QueryModel implements QueryListener {
 	public void abort() {
 		if(query != null) {
 			if(queryInProgress.get()) {
-				abortQueryExecutor.execute(new Runnable() {
+				queryExecutor.execute(new Runnable() {
 					@Override
 					public void run() {
 						try {
@@ -299,7 +318,8 @@ public class QueryModel implements QueryListener {
 				if(query == null)
 					initializeQuery();
 				try {
-					query.oneSolution();
+					if(query != null)
+						query.oneSolution();
 				} catch(PrologError e) {
 					onException(e);
 				}
@@ -316,7 +336,8 @@ public class QueryModel implements QueryListener {
 				if(query == null) 
 					initializeQuery();
 				try {
-					query.allSolutions();
+					if(query != null)
+						query.allSolutions();
 				} catch(PrologError e) {
 					onException(e);
 				}
@@ -336,8 +357,9 @@ public class QueryModel implements QueryListener {
 				if(query == null)
 					initializeQuery();
 				try {
-					if(query.hasNext()) //this check is necessary, otherwise a NoSuchElementException exception could be raised.
-						query.next();
+					if(query != null)
+						if(query.hasNext()) //this check is necessary, otherwise a NoSuchElementException exception could be raised.
+							query.next();
 				} catch(PrologError e) {
 					onException(e);
 				}
@@ -346,7 +368,7 @@ public class QueryModel implements QueryListener {
 	}
 	
 	
-	private void initializeQuery() {
+	private boolean initializeQuery() {
 		final String text = queryText.get();
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
@@ -355,7 +377,20 @@ public class QueryModel implements QueryListener {
 					queryHistory.getValue().add(0, text);
 			}
 		});	
-		Query observedQuery = prologEngineModel.query(text);
+		Query observedQuery = null;
+		try {
+			observedQuery = prologEngineModel.query(text);
+		} catch(PrologParsingException e) {
+			StringBuilder sb = new StringBuilder("Parsing error");
+			Throwable cause = e.getCause();
+			if(cause != null)
+				sb.append(": " + cause.toString());
+			else
+				sb.append(".");
+			updateStatus(sb.toString());
+			return false;
+		}
+		
 		query = new ObservableQuery(observedQuery, listeners);
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
@@ -363,6 +398,7 @@ public class QueryModel implements QueryListener {
 				abortable.set(query.isAbortable());
 			}
 		});
+		return true;
 	}
 
 	
@@ -433,7 +469,7 @@ public class QueryModel implements QueryListener {
 	}
 	
 	@Override
-	public void onNextSolutionFound(Map<String, Term> solution) {
+	public void onNextSolutionFound(QuerySolution solution) {
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
@@ -445,7 +481,7 @@ public class QueryModel implements QueryListener {
 	}
 
 	@Override
-	public void onSolutionsFound(final List<Map<String, Term>> solutions) {
+	public void onSolutionsFound(final List<QuerySolution> solutions) {
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {

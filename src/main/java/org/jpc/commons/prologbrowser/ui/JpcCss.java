@@ -30,8 +30,8 @@ public class JpcCss {
 	public static final String JPC_TOOLBAR_GROUP_PANE = "jpc-toolbar-group-pane";
 	public static final String JPC_BUTTON = "jpc-button";
 	public static final String JPC_IMAGE_BUTTON = "jpc-image-button";
+	public static final String JPC_FOOTER = "jpc-footer";
 	
-	public static final String ABOUT_DRIVER_FOOTER = "jpc-about-driver-footer";
 	public static final String ABOUT_DRIVER_FOOTER_LINK = "jpc-about-driver-footer-link";
 	public static final String DRIVER_NAME_LABEL = "jpc-driver-name-label";
 	public static final String DRIVER_DESCRIPTION_LABEL = "jpc-driver-description-label";

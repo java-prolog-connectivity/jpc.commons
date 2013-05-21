@@ -24,7 +24,7 @@ public class ShutdownPrologEnginePane extends HBox {
 	public ShutdownPrologEnginePane(final PrologEngineProvider prologEngineProvider, final PrologEngineManager prologEngineManager, BooleanProperty disabled) {
 		setMaxWidth(Double.MAX_VALUE);
 		setAlignment(Pos.CENTER_RIGHT);
-		Image shutdownImage = new Image(getClass().getResourceAsStream("shutdown.png"));
+		Image shutdownImage = BrowserImage.shutdownImage();
 		shutdownEngineButton = new Button("Shutdown", new ImageView(shutdownImage));
 		shutdownEngineButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		shutdownEngineButton.setTooltip(new Tooltip("Shutdown engine"));

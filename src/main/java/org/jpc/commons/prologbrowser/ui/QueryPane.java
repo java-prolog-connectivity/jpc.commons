@@ -7,6 +7,10 @@ import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TOOLBAR_CONTAINER;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TOOLBAR_GROUP_PANE;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executor;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -32,9 +36,13 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 import org.jpc.commons.prologbrowser.model.QueryModel;
+import org.jpc.engine.logtalk.LogtalkLibrary;
+import org.jpc.engine.logtalk.LogtalkLibraryItem;
 import org.jpc.resource.LogtalkResource;
 import org.jpc.resource.PrologResource;
 import org.minitoolbox.fx.FXUtil;
+
+import com.google.common.base.Joiner;
 
 /**
  * @author sergioc
@@ -71,14 +79,16 @@ public class QueryPane extends VBox {
 	private TextField status;
 	private TextArea queryTextArea;
 	
-	private BooleanProperty engineIsQueried; //holds true if there is any query in progress in the same Prolog engine where this query is executed.
-	private BooleanProperty engineIsMultiThreaded; //holds true if the Prolog engine where this query is executed is multithreaded.
+	
+	private BooleanProperty busy;
+	private BooleanProperty executingCommand;
 	
 	public QueryPane() {
 		draw();
 		addListeners();
 		style();
-		disable();
+		resetModel();
+		//disable();
 	}
 	
 	public QueryPane(QueryModel model) {
@@ -87,9 +97,9 @@ public class QueryPane extends VBox {
 	}
 	
 	private void draw() {
-		engineIsQueried = new SimpleBooleanProperty();
-		engineIsMultiThreaded = new SimpleBooleanProperty();
-		
+		busy = new SimpleBooleanProperty(false);
+		executingCommand = new SimpleBooleanProperty(false);
+				
 		history = new ComboBox<>();
 		history.setPromptText("Query history");
 		//history.setPrefWidth(JPC_QUERY_HISTORY_PREFERRED_WIDTH);
@@ -97,22 +107,22 @@ public class QueryPane extends VBox {
 		
 		queryButtonsPane = new HBox();
 		
-		Image allSolutionsImage = new Image(getClass().getResourceAsStream("all_solutions.png"));
+		Image allSolutionsImage = BrowserImage.allSolutionsImage();
 		allSolutionsButton = new Button("All", new ImageView(allSolutionsImage));
 		allSolutionsButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		allSolutionsButton.setTooltip(new Tooltip("All solutions"));
 		
-		Image oneSolutionImage = new Image(getClass().getResourceAsStream("one_solution.png"));
+		Image oneSolutionImage = BrowserImage.oneSolutionImage();
 		oneSolutionButton = new Button("One", new ImageView(oneSolutionImage));
 		oneSolutionButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		oneSolutionButton.setTooltip(new Tooltip("One solution"));
 		
-		Image nextSolutionImage = new Image(getClass().getResourceAsStream("next_solution.png"));
+		Image nextSolutionImage = BrowserImage.nextSolutionImage();
 		nextSolutionButton = new Button("Next", new ImageView(nextSolutionImage));
 		nextSolutionButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		nextSolutionButton.setTooltip(new Tooltip("Next solution"));
 		
-		Image cancelImage = new Image(getClass().getResourceAsStream("cancel.png"));
+		Image cancelImage = BrowserImage.cancelImage();
 		cancelQueryButton = new Button("Cancel", new ImageView(cancelImage));
 		cancelQueryButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		cancelQueryButton.setTooltip(new Tooltip("Cancel"));
@@ -120,12 +130,12 @@ public class QueryPane extends VBox {
 		
 		prologShortcutsButtonsPane = new HBox();
 		
-		Image consultImage = new Image(getClass().getResourceAsStream("consult.png"));
+		Image consultImage = BrowserImage.consultImage();
 		consultButton = new Button("Consult", new ImageView(consultImage));
 		consultButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		consultButton.setTooltip(new Tooltip("Consult"));
 		
-		Image ensureLoadedImage = new Image(getClass().getResourceAsStream("ensure_loaded.png"));
+		Image ensureLoadedImage = BrowserImage.ensureLoadedImage();
 		ensureLoadedButton = new Button("Ensure Loaded", new ImageView(ensureLoadedImage));
 		ensureLoadedButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		ensureLoadedButton.setTooltip(new Tooltip("Ensure loaded"));
@@ -133,12 +143,12 @@ public class QueryPane extends VBox {
 		
 		logtalkShortcutsButtonsPane = new HBox();
 		
-		Image logtalkLoadImage = new Image(getClass().getResourceAsStream("logtalk_load.png"));
+		Image logtalkLoadImage = BrowserImage.logtalkLoadImage();
 		logtalkLoadButton = new Button("[⊨]", new ImageView(logtalkLoadImage));
 		logtalkLoadButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		logtalkLoadButton.setTooltip(new Tooltip("Logtalk load"));
 		
-		Image logtalkLoadLibraryImage = new Image(getClass().getResourceAsStream("logtalk_load_library.png"));
+		Image logtalkLoadLibraryImage = BrowserImage.logtalkLoadLibraryImage();
 		logtalkLoadLibraryButton = new Button("[⊨]", new ImageView(logtalkLoadLibraryImage));
 		logtalkLoadLibraryButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		logtalkLoadLibraryButton.setTooltip(new Tooltip("Load Logtalk library"));
@@ -146,22 +156,22 @@ public class QueryPane extends VBox {
 		
 		editionButtonsPane = new HBox();
 		
-		Image openImage = new Image(getClass().getResourceAsStream("open.png"));
+		Image openImage = BrowserImage.openImage();
 		openButton = new Button("Open", new ImageView(openImage));
 		openButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		openButton.setTooltip(new Tooltip("Open"));
 		
-		Image saveImage = new Image(getClass().getResourceAsStream("save.png"));
+		Image saveImage = BrowserImage.saveImage();
 		saveButton = new Button("Save", new ImageView(saveImage));
 		saveButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		saveButton.setTooltip(new Tooltip("Save"));
 		
-		Image copyToClipboardImage = new Image(getClass().getResourceAsStream("clipboard.png"));
+		Image copyToClipboardImage = BrowserImage.clipboardImage();
 		copyToClipboardButton = new Button("Copy", new ImageView(copyToClipboardImage));
 		copyToClipboardButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		copyToClipboardButton.setTooltip(new Tooltip("Copy"));
 		
-		Image clearTextImage = new Image(getClass().getResourceAsStream("clear.png"));
+		Image clearTextImage = BrowserImage.clearImage();
 		clearTextButton = new Button("New", new ImageView(clearTextImage));
 		clearTextButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		clearTextButton.setTooltip(new Tooltip("New"));
@@ -202,14 +212,20 @@ public class QueryPane extends VBox {
 		status.setEditable(false);
 		getChildren().addAll(toolbarPane, queryTextArea, status, history);
 
+		//saveButton.disableProperty().set(true);
+		copyToClipboardButton.disableProperty().bind(Bindings.or(queryTextArea.textProperty().isEqualTo(""), queryTextArea.textProperty().isNull()));
+		resetModel();
 	}
-
+	
+	public BooleanProperty busyProperty() {
+		return busy;
+	}
 	
 	public void setModel(QueryModel model) {
 		resetModel();
 		this.model = model;
-		engineIsQueried.bind(model.getPrologEngineModel().queryInProgressProperty());
-		engineIsMultiThreaded.bind(model.getPrologEngineModel().multiThreadedProperty());
+		busy.unbind();
+		busy.bind(Bindings.or(model.queryInProgressProperty(), executingCommand));
 		queryTextArea.textProperty().bindBidirectional(model.queryTextProperty());
 		queryTextArea.editableProperty().bind(model.queryTextEditableProperty());
 		history.itemsProperty().bind(model.queryHistoryProperty());
@@ -225,17 +241,17 @@ public class QueryPane extends VBox {
 		logtalkLoadButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
 		logtalkLoadLibraryButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
 		
-		openButton.disableProperty().bind(Bindings.or(Bindings.not(model.queryTextAvailableProperty()), Bindings.not(model.queryTextEditableProperty())));
-		saveButton.disableProperty().bind(Bindings.not(model.queryTextAvailableProperty()));
+		openButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+		saveButton.disableProperty().set(false);
 		clearTextButton.disableProperty().bind(Bindings.or(Bindings.not(model.queryTextAvailableProperty()), Bindings.not(model.queryTextEditableProperty())));
-		copyToClipboardButton.disableProperty().bind(Bindings.not(model.queryTextAvailableProperty()));
+		
 	}
 	
 	public void resetModel() {
+		busy.unbind();
+		busy.bind(executingCommand);
 		if(model != null)
 			queryTextArea.textProperty().unbindBidirectional(model.queryTextProperty());
-		engineIsQueried.unbind();
-		engineIsMultiThreaded.unbind();
 		queryTextArea.editableProperty().unbind();
 		history.itemsProperty().unbind();
 		history.disableProperty().unbind();
@@ -252,10 +268,11 @@ public class QueryPane extends VBox {
 		logtalkLoadLibraryButton.disableProperty().unbind();
 		
 		openButton.disableProperty().unbind();
-		saveButton.disableProperty().unbind();
+		saveButton.disableProperty().set(true);
 		clearTextButton.disableProperty().unbind();
-		copyToClipboardButton.disableProperty().unbind();
+		//copyToClipboardButton.disableProperty().unbind();
 		model = null;
+		disable();
 	}
 	
 	public void disable() {
@@ -270,9 +287,9 @@ public class QueryPane extends VBox {
 		logtalkLoadButton.disableProperty().set(true);
 		logtalkLoadLibraryButton.disableProperty().set(true);
 		openButton.disableProperty().set(true);
-		saveButton.disableProperty().set(true);
+		//saveButton.disableProperty().set(true);
 		clearTextButton.disableProperty().set(true);
-		copyToClipboardButton.disableProperty().set(true);
+		//copyToClipboardButton.disableProperty().set(true);
 	}
 	
 	private File selectPrologFile() {
@@ -372,7 +389,59 @@ public class QueryPane extends VBox {
 			}
 		});
 		
+		logtalkLoadLibraryButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent event) {
+				Executor executor = model.getExecutor();
+				executingCommand.set(true);
+				executor.execute(new Runnable() {
 
+					@Override
+					public void run() {
+						try {
+							if(LogtalkLibrary.getDefaultLogtalkLibraries() == null) {
+								LogtalkLibrary.setDefaultLogtalkLibraries(model.getPrologEngineModel().asLogtalkEngine().getLibraries());
+							}
+							final Map<String, LogtalkLibrary> logtalkLibraries = LogtalkLibrary.getDefaultLogtalkLibraries();
+							FXUtil.runInFXApplicationThread(new Runnable() {
+								@Override
+								public void run() {
+									LogtalkLibraryChooserStage libraryChooser = new LogtalkLibraryChooserStage(getScene().getWindow(), logtalkLibraries);
+									libraryChooser.showAndWait();
+									List<LogtalkLibraryItem> chosenItems = libraryChooser.getChosenItems();
+									if(chosenItems != null) {
+										List<String> chosenItemsStrings = new ArrayList<>();
+										for(LogtalkLibraryItem logtalkLibraryItem : chosenItems) {
+											chosenItemsStrings.add(logtalkLibraryItem.asTerm().toString());
+										}
+										StringBuilder sb = new StringBuilder();
+										sb.append("logtalk_load([");
+										sb.append(Joiner.on(", ").join(chosenItemsStrings));
+										sb.append("])");
+										queryTextArea.setText(sb.toString());
+										model.oneSolution();
+									}
+								}
+							});
+						} catch(Exception e) {
+							model.updateStatus(e.toString());
+							e.printStackTrace();
+							//System.out.println(e.getStackTrace());
+						} finally {
+							FXUtil.runInFXApplicationThread(new Runnable() {
+								@Override
+								public void run() {
+									executingCommand.set(false);
+								}
+							});
+						}
+					}
+					
+				});
+				
+				
+			}
+		});
 		
 		// EDITOR BUTTONS
 		clearTextButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -399,7 +468,6 @@ public class QueryPane extends VBox {
 				queryTextArea.textProperty().set(newValue);
 			}
 		});
-
 	}
 	
 	private void style() {

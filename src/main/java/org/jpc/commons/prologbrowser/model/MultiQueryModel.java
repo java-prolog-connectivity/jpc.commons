@@ -26,7 +26,6 @@ public class MultiQueryModel implements ListChangeListener<QueryModel> {
 		this.prologEngineModel = prologEngineModel;
 		this.executor = executor;
 		queries = FXCollections.observableArrayList();
-		createSingleQueryModel(); //the multi query model always have at least one single query model
 		queries.addListener(this);
 		queryInProgress = new SimpleBooleanProperty(false);
 		focusedIndex = new SimpleIntegerProperty(0);

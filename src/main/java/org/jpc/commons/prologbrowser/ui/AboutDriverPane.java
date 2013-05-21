@@ -8,7 +8,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -18,8 +17,8 @@ import org.jpc.engine.prolog.driver.PrologEngineDriver;
 
 public class AboutDriverPane extends VBox {
 
-	
-	private final PrologEngineDriver driver;
+	private PrologEngineDriver driver;
+	private Application app;
 	private Label libraryNameLabel;
 	private Label descriptionLabel;
 	private GridPane gridPane;
@@ -27,15 +26,20 @@ public class AboutDriverPane extends VBox {
 	private Hyperlink licenseLink;
 	private Hyperlink websiteLink;
 	
-	public AboutDriverPane(final Application app, final PrologEngineDriver driver) {
+	public AboutDriverPane(Application app, final PrologEngineDriver driver) {
 		this.driver = driver;
+		this.app = app;
+		draw();
+		style();
+		setFocusTraversable(true);
+		requestFocus();
+	}
+	
+	private void draw() {
 		setSpacing(20);
 		libraryNameLabel = new Label(driver.getLibraryName());
 		descriptionLabel = new Label(driver.getDescription());
-		
 
-		
-		
 		gridPane = new GridPane();
 		gridPane.add(libraryNameLabel, 0, 0);
 		gridPane.add(descriptionLabel, 0, 1, 2, 1);
@@ -77,17 +81,13 @@ public class AboutDriverPane extends VBox {
 		HBox.setHgrow(hBoxWebsite, Priority.SOMETIMES);
 		
 		getChildren().addAll(gridPane, footer);
-		
-		style();
-		setFocusTraversable(true);
-		requestFocus();
 	}
 	
 	private void style() {
 		gridPane.getStyleClass().addAll(JPC_GRID, JPC_CONTAINER);
 		libraryNameLabel.getStyleClass().add(JpcCss.DRIVER_NAME_LABEL);
 		descriptionLabel.getStyleClass().add(JpcCss.DRIVER_DESCRIPTION_LABEL);
-		footer.getStyleClass().add(JpcCss.ABOUT_DRIVER_FOOTER);
+		footer.getStyleClass().add(JpcCss.JPC_FOOTER);
 		licenseLink.getStyleClass().add(JpcCss.ABOUT_DRIVER_FOOTER_LINK);
 		websiteLink.getStyleClass().add(JpcCss.ABOUT_DRIVER_FOOTER_LINK);
 		getStylesheets().add(JpcCss.class.getResource(JpcCss.JPC_CSS_FILE_NAME).toExternalForm());
