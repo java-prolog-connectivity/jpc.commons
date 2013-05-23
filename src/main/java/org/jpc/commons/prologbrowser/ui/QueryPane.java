@@ -52,6 +52,9 @@ public class QueryPane extends VBox {
 
 	private QueryModel model;
 
+	private BooleanProperty busy;
+	private BooleanProperty executingCommand;
+	
 	private ToolBar toolbarPane;
 	//private HBox firstRowToolBar;
 	private ComboBox<String> history;
@@ -79,9 +82,9 @@ public class QueryPane extends VBox {
 	private TextField status;
 	private TextArea queryTextArea;
 	
+	//private Hyperlink queryResultTitle;
+	private QueryResultPane queryResultPane;
 	
-	private BooleanProperty busy;
-	private BooleanProperty executingCommand;
 	
 	public QueryPane() {
 		draw();
@@ -194,7 +197,6 @@ public class QueryPane extends VBox {
 		toolbarPane.getItems().addAll(queryButtonsPane, prologShortcutsButtonsPane, logtalkShortcutsButtonsPane, editionButtonsPane);
 		//toolbarPane.setMaxWidth(Control.USE_PREF_SIZE);
 		//HBox.setHgrow(toolbarPane, Priority.NEVER);
-		
 //		VBox vBoxToolBar = new VBox();
 //		firstRowToolBar = new HBox();
 //		firstRowToolBar.getChildren().addAll(queryButtonsPane, fileLoaderButtonsPane, editionButtonsPane);
@@ -210,7 +212,13 @@ public class QueryPane extends VBox {
 				
 		status = new TextField();
 		status.setEditable(false);
-		getChildren().addAll(toolbarPane, queryTextArea, status, history);
+		
+		
+		//queryResultTitle = new Hyperlink("Result");
+		queryResultPane = new QueryResultPane();
+		
+		
+		getChildren().addAll(toolbarPane, history, queryTextArea, status, queryResultPane);
 
 		//saveButton.disableProperty().set(true);
 		copyToClipboardButton.disableProperty().bind(Bindings.or(queryTextArea.textProperty().isEqualTo(""), queryTextArea.textProperty().isNull()));
@@ -224,6 +232,7 @@ public class QueryPane extends VBox {
 	public void setModel(QueryModel model) {
 		resetModel();
 		this.model = model;
+		queryResultPane.setModel(model.getQueryResultModel());
 		busy.unbind();
 		busy.bind(Bindings.or(model.queryInProgressProperty(), executingCommand));
 		queryTextArea.textProperty().bindBidirectional(model.queryTextProperty());
@@ -272,6 +281,7 @@ public class QueryPane extends VBox {
 		clearTextButton.disableProperty().unbind();
 		//copyToClipboardButton.disableProperty().unbind();
 		model = null;
+		queryResultPane.resetModel();
 		disable();
 	}
 	
@@ -478,6 +488,7 @@ public class QueryPane extends VBox {
 		logtalkShortcutsButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		editionButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		toolbarPane.getStyleClass().add(JPC_TOOLBAR_CONTAINER);
+		//queryResultTitle.getStyleClass().add(JPC_TITLE);
 		//firstRowToolBar.getStyleClass().add(JPC_TOOLBAR_CONTAINER);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}

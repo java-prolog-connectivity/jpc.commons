@@ -57,13 +57,14 @@ public class QueryBrowserPane extends VBox {
 		togglePaneWhenHyperlinkClicked(logicConsolePane, logicConsoleTitle);
 		
 		queryTitle = new Hyperlink("Query");
-		//queryPane = new SingleQueryPane();
 		queryPane = new MultiQueryPane();
 		multiQueryController = new MultiQueryController(logicConsolePane.getPrologEngineChoiceModel(), queryPane);
 		togglePaneWhenHyperlinkClicked(queryPane, queryTitle);
 		//queryPane.setPrefWidth(getWidth());
 		//queryPane.setMaxWidth(getWidth());
 		//queryPane.setMaxWidth(Double.MAX_VALUE);
+		
+		
 		getChildren().addAll(settingsTitle, settingsPane, logicConsoleTitle, logicConsolePane, queryTitle, queryPane);
 		setFocusTraversable(true);
 		requestFocus();

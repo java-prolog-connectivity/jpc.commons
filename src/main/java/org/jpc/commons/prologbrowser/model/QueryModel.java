@@ -48,9 +48,10 @@ public class QueryModel implements QueryListener {
 	//QUERY PROPERTIES
 	private Property<ObservableList<String>> queryHistory;
 	private StringProperty queryText;
-	private BooleanProperty queryOpen;
-	private BooleanProperty queryInProgress;  //holds true if this query is in progress
-	private BooleanProperty queryExhausted;
+	private BooleanProperty queryOpen; //holds true if the query is open
+	private BooleanProperty showingResult; //holds true if the query has just finished and its results are being shown to the user
+	private BooleanProperty queryInProgress;  //holds true if the query is in progress
+	private BooleanProperty queryExhausted; //holds true if the query has been exhausted after successive calls to the next solution
 	private LongProperty numberSolutions;
 	private LongProperty queryMilliseconds;
 	private LongProperty startTime;
@@ -63,10 +64,12 @@ public class QueryModel implements QueryListener {
 	private BooleanProperty cancelDisabled;
 	private BooleanProperty abortable;
 
-	private ObservableQuery query;
 	private PrologEngineModel prologEngineModel;
+	private ObservableQuery query;
+	private QueryResultModel queryResultModel;
 
 	private StringProperty statusMessage;
+	
 	
 	public QueryModel(PrologEngineModel prologEngineModel, Executor queryExecutor) {
 		this.prologEngineModel = prologEngineModel;
@@ -90,10 +93,11 @@ public class QueryModel implements QueryListener {
 		queryOpen = new SimpleBooleanProperty(false);
 		queryInProgress = new SimpleBooleanProperty(false);
 		queryExhausted = new SimpleBooleanProperty(false);
+		showingResult = new SimpleBooleanProperty(false);
 		
 		//SETTING DERIVED PROPERTIES
 		queryTextEditable = new SimpleBooleanProperty(true); 
-		queryTextEditable.bind(Bindings.not(Bindings.or(queryOpen, queryExhausted)));
+		queryTextEditable.bind(Bindings.not(Bindings.or(queryOpen, queryExhausted).or(showingResult)));
 		queryTextAvailable = new SimpleBooleanProperty(false);
 		queryText.addListener(new ChangeListener<String>(){
 			@Override
@@ -107,24 +111,33 @@ public class QueryModel implements QueryListener {
 		});
 		
 		oneSolutionDisabled = new SimpleBooleanProperty(true);
-		oneSolutionDisabled.bind(Bindings.not(engineReady).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted).or(queryOpen));
+		oneSolutionDisabled.bind(Bindings.not(engineReady).or(showingResult).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted).or(queryOpen));
 		allSolutionsDisabled = new SimpleBooleanProperty(true);
-		allSolutionsDisabled.bind(Bindings.not(engineReady).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted).or(queryOpen));
+		allSolutionsDisabled.bind(Bindings.not(engineReady).or(showingResult).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted).or(queryOpen));
 		nextSolutionDisabled = new SimpleBooleanProperty(true);
-		nextSolutionDisabled.bind(Bindings.not(engineReady).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted));
+		nextSolutionDisabled.bind(Bindings.not(engineReady).or(showingResult).or(nonMultiThreadedEngineIsQueried).or(Bindings.not(queryTextAvailable)).or(queryExhausted));
 		abortable = new SimpleBooleanProperty(false); //this property will be updated when a query is created
 		cancelDisabled = new SimpleBooleanProperty(true);
-		cancelDisabled.bind(Bindings.not(queryOpen).and(Bindings.not(queryInProgress).or(Bindings.not(abortable))));
+		//cancelDisabled.bind(Bindings.not(showingResult).and(Bindings.not(queryOpen).and(Bindings.not(queryInProgress).or(Bindings.not(abortable)))));
+		cancelDisabled.bind(Bindings.not( //negation of the enabled condition seems to be easier to write
+				showingResult.or(queryOpen).or(Bindings.and(queryInProgress, abortable)) 
+		));
 		numberSolutions = new SimpleLongProperty(0);
 		queryMilliseconds = new SimpleLongProperty(0);
 		startTime = new SimpleLongProperty(0);
 		statusMessage = new SimpleStringProperty();
+		
+		this.queryResultModel = new QueryResultModel();
 	}
 
 	public PrologEngineModel getPrologEngineModel() {
 		return prologEngineModel;
 	}
-	
+
+	public QueryResultModel getQueryResultModel() {
+		return queryResultModel;
+	}
+
 	public Executor getExecutor() {
 		return queryExecutor;
 	}
@@ -178,6 +191,7 @@ public class QueryModel implements QueryListener {
 		if(query != null) {
 			query.close();
 			query = null;
+			queryResultModel.reset();
 			resetQueryMetrics();
 		}
 		updateStatus();
@@ -187,6 +201,8 @@ public class QueryModel implements QueryListener {
 		numberSolutions.set(0);
 		startTime.set(0);
 		queryMilliseconds.set(0);
+		showingResult.set(false);
+		queryResultModel.getQueryResult().clear();
 	}
 	
 	public void resetState() {
@@ -381,13 +397,8 @@ public class QueryModel implements QueryListener {
 		try {
 			observedQuery = prologEngineModel.query(text);
 		} catch(PrologParsingException e) {
-			StringBuilder sb = new StringBuilder("Parsing error");
-			Throwable cause = e.getCause();
-			if(cause != null)
-				sb.append(": " + cause.toString());
-			else
-				sb.append(".");
-			updateStatus(sb.toString());
+			//notifyException(e);
+			onException(e);
 			return false;
 		}
 		
@@ -396,6 +407,7 @@ public class QueryModel implements QueryListener {
 			@Override
 			public void run() {
 				abortable.set(query.isAbortable());
+				queryResultModel.setGoal(query.getGoal());
 			}
 		});
 		return true;
@@ -424,18 +436,6 @@ public class QueryModel implements QueryListener {
 	}
 
 	@Override
-	public void onQueryExhausted() {
-		FXUtil.runInFXApplicationThread(new Runnable() {
-			@Override
-			public void run() {
-				queryExhausted.set(true); //the query was exhausted when attempting to find the next solution
-				updateQueryMilliseconds();
-				updateStatus();
-			}
-		});	
-	}
-
-	@Override
 	public void onQueryInProgress() {
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
@@ -456,6 +456,19 @@ public class QueryModel implements QueryListener {
 	}
 
 	@Override
+	public void onQueryExhausted() {
+		FXUtil.runInFXApplicationThread(new Runnable() {
+			@Override
+			public void run() {
+				queryExhausted.set(true); //the query was exhausted when attempting to find the next solution
+				updateQueryMilliseconds();
+				updateStatus();
+				showingResult.set(true);
+			}
+		});	
+	}
+	
+	@Override
 	public void onException(final Exception e) {
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
@@ -463,19 +476,31 @@ public class QueryModel implements QueryListener {
 				//queryInProgress.set(false);
 				//updateStatus("Exception while executing query: " + e.toString());
 				close();
-				updateStatus(e.toString());
+				StringBuilder sb = new StringBuilder();
+				String message = e.getMessage();
+				if(message != null && !message.isEmpty())
+					sb.append(message);
+				else
+					sb.append(e.toString() + ".");
+				if(e.getCause() != null) {
+					sb.append(" Cause: ");
+					sb.append(e.getCause());
+				}
+				updateStatus(sb.toString());
+				showingResult.set(true);
 			}
 		});
 	}
 	
 	@Override
-	public void onNextSolutionFound(QuerySolution solution) {
+	public void onNextSolutionFound(final QuerySolution solution) {
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
 				numberSolutions.set(numberSolutions.get() + 1);
 				updateQueryMilliseconds();
 				updateStatus();
+				queryResultModel.getQueryResult().add(solution);
 			}
 		});
 	}
@@ -488,10 +513,22 @@ public class QueryModel implements QueryListener {
 				numberSolutions.set(solutions.size());
 				updateQueryMilliseconds();
 				updateStatus();
+				showingResult.set(true);
+				queryResultModel.getQueryResult().setAll(solutions);
 			}
 		});
 	}
+	
+	@Override
+	public void onQueryDisposed() {
+	}
 
+	private void notifyException(Exception e) {
+		for(QueryListener listener : listeners) {
+			listener.onException(e);
+		}
+	}
+	
 	/**
 	 * Add a listener to the list of objects listening for query events.
 	 * @param listener
@@ -507,7 +544,5 @@ public class QueryModel implements QueryListener {
 		if(query != null)
 			query.removeQueryListener(listener);
 	}
-
-
 
 }

@@ -35,9 +35,12 @@ public class MultiQueryPane extends AnchorPane {
 		getChildren().addAll(tabPane, addButton);
 		AnchorPane.setTopAnchor(tabPane, 5.0);
 	    AnchorPane.setLeftAnchor(tabPane, 5.0);
+	    //AnchorPane.setLeftAnchor(tabPane, 0.0);
 	    AnchorPane.setRightAnchor(tabPane, 5.0);
 	    AnchorPane.setTopAnchor(addButton, 10.0);
+	    //AnchorPane.setTopAnchor(addButton, 5.0);
 	    AnchorPane.setLeftAnchor(addButton, 10.0);
+	    //AnchorPane.setLeftAnchor(addButton, 0.0);
     }
     
     private void addListeners() {

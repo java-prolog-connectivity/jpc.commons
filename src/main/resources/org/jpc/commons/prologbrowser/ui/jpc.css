@@ -1,6 +1,6 @@
 
 .tab-header-area {
-  -fx-padding: 0 0 0 40 ;
+  -fx-padding: 0 0 0 43 ;
 }
  
 
@@ -14,7 +14,7 @@
 }
 
 .jpc-title {
-	-fx-font-size: 15pt;
+	-fx-font-size: 14pt;
 	-fx-font-weight: bold;
 	-fx-underline: false;
 }
@@ -100,17 +100,17 @@
 .jpc-about-driver-footer-link {
 	-fx-underline: true;
 	-fx-text-fill: darkblue;
-	-fx-font-size: 11pt;
+	-fx-font-size: 10pt;
 }
 
 
 .jpc-driver-name-label {
-	-fx-font: bold 30pt "Trebuchet MS";
+	-fx-font: bold 24pt "Trebuchet MS";
 	-fx-text-fill: dimgrey;
 }
 
 .jpc-driver-description-label {
-	-fx-font: 14pt "Helvetica";
+	-fx-font: 12pt "Helvetica";
 	-fx-font-weight: normal;
 }
 

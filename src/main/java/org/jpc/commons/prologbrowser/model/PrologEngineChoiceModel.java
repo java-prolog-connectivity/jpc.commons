@@ -1,7 +1,6 @@
 package org.jpc.commons.prologbrowser.model;
 
 import java.util.Collection;
-import java.util.List;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -22,6 +21,7 @@ public class PrologEngineChoiceModel implements PrologEngineProvider<PrologEngin
 	private ObjectProperty<MultipleSelectionModel<PrologEngineModel>> selectionModelProperty;
 
 	private Collection<PrologEngineInvalidatedListener> engineSelectionListeners;
+
 
 	public PrologEngineChoiceModel(ObservableList<PrologEngineModel> availablePrologEngines, ObjectProperty<MultipleSelectionModel<PrologEngineModel>> selectionModelProperty) {
 		this.availablePrologEngines = availablePrologEngines;
@@ -49,11 +49,10 @@ public class PrologEngineChoiceModel implements PrologEngineProvider<PrologEngin
 		selectionModelProperty.get().selectedItemProperty().addListener(new ChangeListener<PrologEngineModel>(){
 			@Override
 			public void changed(ObservableValue<? extends PrologEngineModel> observable,
-					PrologEngineModel oldValue, PrologEngineModel newValue) {
-				PrologEngineModel prologEngineModel = getPrologEngine();
-				if(prologEngineModel != null) {
-					selectedEngineAvailable.bind(prologEngineModel.readyProperty());
-					selectedEngineCloseable.bind(prologEngineModel.closeableProperty());
+					PrologEngineModel oldPrologEngineModel, PrologEngineModel newPrologEngineModel) { 
+				if(newPrologEngineModel != null) {
+					selectedEngineAvailable.bind(newPrologEngineModel.readyProperty());
+					selectedEngineCloseable.bind(newPrologEngineModel.closeableProperty());
 				} else {
 					selectedEngineAvailable.unbind();
 					selectedEngineAvailable.set(false);
@@ -75,16 +74,22 @@ public class PrologEngineChoiceModel implements PrologEngineProvider<PrologEngin
 
 	
 	private PrologEngineModel getFirstSelectedPrologEngine() {
-		List<PrologEngineModel> prologEnginesModels = getSelectedPrologEngines();
+		return selectionModelProperty.get().getSelectedItem();
+		/*
+		List<PrologEngineModel> prologEnginesModels = getSelectedPrologEngines(); //this method is buggy (a JavaFX problem) and should not be used
 		if(prologEnginesModels.isEmpty())
 			return null;
 		else
 			return prologEnginesModels.get(0);
+		*/
 	}
 	
-	public ObservableList<PrologEngineModel> getSelectedPrologEngines() {
-		return selectionModelProperty.get().getSelectedItems();
-	}
+//	private ObservableList<PrologEngineModel> getSelectedPrologEngines() {
+//		//Warning: the method getSelectedItems() seems to be buggy in JavaFX. 
+//		//If it is called in a change listener triggered because its only selection has been deleted, getSelectedItems will still return a collection with the item that has been deleted,
+//		//instead of returning an empty collection as it should.
+//		return selectionModelProperty.get().getSelectedItems(); 
+//	}
 	
 	public ObservableList<PrologEngineModel> getAvailablePrologEngines() {
 		return availablePrologEngines;
