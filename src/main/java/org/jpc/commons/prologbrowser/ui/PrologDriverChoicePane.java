@@ -20,7 +20,7 @@ import javafx.stage.Window;
 import javafx.util.Callback;
 
 import org.jpc.commons.prologbrowser.model.PrologDriverChoiceModel;
-import org.jpc.engine.prolog.driver.PrologEngineDriver;
+import org.jpc.commons.prologbrowser.model.PrologDriverModel;
 
 /**
  * Allows a user to select a Prolog driver.
@@ -36,10 +36,10 @@ public class PrologDriverChoicePane extends GridPane {
 	private Label prologDriversLabel;
 	
 	private ListView<String> engineTypes;
-	private ListView<PrologEngineDriver> prologDrivers;
+	private ListView<PrologDriverModel> prologDrivers;
 	
 	
-	public PrologDriverChoicePane(Iterable<PrologEngineDriver> drivers, Application app) {
+	public PrologDriverChoicePane(Iterable<PrologDriverModel> drivers, Application app) {
 		this.app = app;
 		draw();
 		model = new PrologDriverChoiceModel(drivers, engineTypes.getItems(), engineTypes.selectionModelProperty(), prologDrivers.getItems(), prologDrivers.selectionModelProperty());
@@ -68,10 +68,10 @@ public class PrologDriverChoicePane extends GridPane {
 		engineTypes = new ListView<>();
 		prologDrivers = new ListView<>();
 
-		prologDrivers.setCellFactory(new Callback<ListView<PrologEngineDriver>, ListCell<PrologEngineDriver>>() {
+		prologDrivers.setCellFactory(new Callback<ListView<PrologDriverModel>, ListCell<PrologDriverModel>>() {
 			@Override
-			public ListCell<PrologEngineDriver> call(ListView<PrologEngineDriver> list) {
-				return new PrologEngineConfigurationCell();
+			public ListCell<PrologDriverModel> call(ListView<PrologDriverModel> list) {
+				return new PrologDriverCell();
 			}
 		});
 
@@ -95,16 +95,16 @@ public class PrologDriverChoicePane extends GridPane {
 		prologDrivers.setDisable(true);
 	}
 
-	private class PrologEngineConfigurationCell extends ListCell<PrologEngineDriver> {
+	private class PrologDriverCell extends ListCell<PrologDriverModel> {
 		
-		public PrologEngineConfigurationCell() {
+		public PrologDriverCell() {
 			setOnMouseClicked(new EventHandler<MouseEvent>() {
 				@Override
 				public void handle(MouseEvent mouseEvent) {
 					if(mouseEvent.getButton().equals(MouseButton.PRIMARY)){
 			            if(mouseEvent.getClickCount() == 2){
 			            	Window owner = getScene().getWindow();
-			            	PrologEngineDriver driver = ((PrologEngineConfigurationCell)mouseEvent.getSource()).getItem();
+			            	PrologDriverModel driver = ((PrologDriverCell)mouseEvent.getSource()).getItem();
 			            	if(driver != null) {
 			            		new AboutDriverStage(owner, app, driver).show();
 			            	}
@@ -114,7 +114,7 @@ public class PrologDriverChoicePane extends GridPane {
 			});
 		}
 		
-		@Override protected void updateItem(PrologEngineDriver item, boolean empty) {
+		@Override protected void updateItem(PrologDriverModel item, boolean empty) {
 			super.updateItem(item, empty);
 			setText(item == null ? "" : item.getName());
 		}

@@ -7,7 +7,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
 
-import org.jpc.engine.prolog.driver.PrologEngineDriver;
+import org.jpc.commons.prologbrowser.model.PrologDriverModel;
 
 public class QueryBrowserScene extends Scene {
 
@@ -15,7 +15,7 @@ public class QueryBrowserScene extends Scene {
 	private HBox root;
 	private QueryBrowserPane queryBrowserPane;
 	
-	public QueryBrowserScene(Application app, Iterable<PrologEngineDriver> drivers) {
+	public QueryBrowserScene(Application app, Iterable<PrologDriverModel> drivers) {
 		super(new HBox());
 		this.app = app;
 		root = (HBox) this.getRoot();

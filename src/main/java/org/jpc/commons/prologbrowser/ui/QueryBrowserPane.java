@@ -16,8 +16,8 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
+import org.jpc.commons.prologbrowser.model.PrologDriverModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineOrganizer;
-import org.jpc.engine.prolog.driver.PrologEngineDriver;
 import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class QueryBrowserPane extends VBox {
 	//If it would not have been declared as an instance variable it will be garbage collected and the controller will not work after a while.
 	private MultiQueryController multiQueryController; 
 	
-	public QueryBrowserPane(Application app, Iterable<PrologEngineDriver> drivers) {
+	public QueryBrowserPane(Application app, Iterable<PrologDriverModel> drivers) {
 		executor = Executors.newCachedThreadPool();
 		
 		settingsTitle = new Hyperlink("Settings");

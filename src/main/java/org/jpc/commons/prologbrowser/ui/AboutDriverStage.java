@@ -6,13 +6,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-import org.jpc.engine.prolog.driver.PrologEngineDriver;
+import org.jpc.commons.prologbrowser.model.PrologDriverModel;
 
 public class AboutDriverStage extends Stage {
 
 	private Scene scene;
 
-	public AboutDriverStage(Window owner, Application app, PrologEngineDriver driver) {
+	public AboutDriverStage(Window owner, Application app, PrologDriverModel driver) {
 		initOwner(owner);
 		initModality(Modality.WINDOW_MODAL);
 		setResizable(false);

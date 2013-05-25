@@ -13,11 +13,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-import org.jpc.engine.prolog.driver.PrologEngineDriver;
+import org.jpc.commons.prologbrowser.model.PrologDriverModel;
 
 public class AboutDriverPane extends VBox {
 
-	private PrologEngineDriver driver;
+	private PrologDriverModel driver;
 	private Application app;
 	private Label libraryNameLabel;
 	private Label descriptionLabel;
@@ -26,7 +26,7 @@ public class AboutDriverPane extends VBox {
 	private Hyperlink licenseLink;
 	private Hyperlink websiteLink;
 	
-	public AboutDriverPane(Application app, final PrologEngineDriver driver) {
+	public AboutDriverPane(Application app, final PrologDriverModel driver) {
 		this.driver = driver;
 		this.app = app;
 		draw();
@@ -37,7 +37,7 @@ public class AboutDriverPane extends VBox {
 	
 	private void draw() {
 		setSpacing(20);
-		libraryNameLabel = new Label(driver.getLibraryName());
+		libraryNameLabel = new Label(driver.getName());
 		descriptionLabel = new Label(driver.getDescription());
 
 		gridPane = new GridPane();

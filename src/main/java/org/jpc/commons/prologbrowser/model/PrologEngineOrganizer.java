@@ -15,7 +15,6 @@ import javafx.scene.control.MultipleSelectionModel;
 import org.jpc.engine.listener.PrologEngineLifeCycleListener;
 import org.jpc.engine.profile.PrologEngineProfileFactory;
 import org.jpc.engine.prolog.PrologEngine;
-import org.jpc.engine.prolog.driver.PrologEngineDriver;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
 import org.jpc.engine.prolog.driver.PrologEngineManager;
 import org.jpc.util.naming.NamingUtil;
@@ -53,9 +52,9 @@ public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>,
 		this.executor = executor;
 		driverMap = new HashMap<>();
 		namesPrologEngines = new HashMap<>();
-		for(PrologEngineDriver driver : driverChoiceModel.getAllDrivers()) {
-			driverMap.put(driver, FXCollections.<PrologEngineModel>observableArrayList());
-		}
+//		for(PrologDriverModel driver : driverChoiceModel.getAllDrivers()) {
+//			driverMap.put(driver, FXCollections.<PrologEngineModel>observableArrayList());
+//		}
 		driverChoiceModel.addDriverSelectionObserver(this);
 	}
 	
@@ -67,7 +66,7 @@ public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>,
 		return prologEngines;
 	}
 	
-	public PrologEngineDriver getPrologEngineDriver() {
+	public PrologDriverModel getPrologEngineDriver() {
 		return driverProvider.getPrologEngineFactory();
 	}
 	
@@ -77,6 +76,11 @@ public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>,
 	private void setDriverSelection(PrologEngineFactory driver) {
 		resetDriverSelection();
 		ObservableList<PrologEngineModel> prologEngines = driverMap.get(driver);
+		if(prologEngines == null) {
+			prologEngines = FXCollections.<PrologEngineModel>observableArrayList();
+			driverMap.put(driver, prologEngines);
+		}
+			
 		currentDriverPrologEngines.setAll(prologEngines);
 		driverMap.put(driver, currentDriverPrologEngines);
 		currentDriver = driver;
@@ -162,7 +166,7 @@ public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>,
 	
 	@Override
 	public PrologEngineModel createPrologEngine() {
-		PrologEngineDriver driver = getPrologEngineDriver();
+		PrologDriverModel driver = getPrologEngineDriver();
 		PrologEngineFactory prologEngineFactory = profileFactory == null?driver : profileFactory.createPrologEngineProfile(driver);
 		PrologEngineModel prologEngineModel = new PrologEngineModel(executor);
 		prologEngineModel.setName(driver.getShortDescription());

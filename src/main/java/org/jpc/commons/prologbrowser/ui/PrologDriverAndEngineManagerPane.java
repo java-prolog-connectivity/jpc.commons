@@ -9,18 +9,21 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import org.jpc.commons.prologbrowser.model.PrologDriverChoiceModel;
+import org.jpc.commons.prologbrowser.model.PrologDriverModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineChoiceModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineOrganizer;
 import org.jpc.engine.profile.PrologEngineProfileFactory;
-import org.jpc.engine.prolog.driver.PrologEngineDriver;
 
 public class PrologDriverAndEngineManagerPane extends VBox {
 
-	private Iterable<PrologEngineDriver> drivers;
+	private Iterable<PrologDriverModel> drivers;
 	private PrologEngineProfileFactory profileFactory;
 	private Application app;
 	private Executor executor;
@@ -34,7 +37,7 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 	//private HBox lifeCycleButtonsPane;
 	
 
-	public PrologDriverAndEngineManagerPane(Iterable<PrologEngineDriver> drivers, PrologEngineProfileFactory profileFactory, Application app, Executor executor) {
+	public PrologDriverAndEngineManagerPane(Iterable<PrologDriverModel> drivers, PrologEngineProfileFactory profileFactory, Application app, Executor executor) {
 		this.drivers = drivers;
 		this.profileFactory = profileFactory;
 		this.app = app;
@@ -62,8 +65,7 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		PrologEngineChoicePane prologEngineChoicePane = new PrologEngineChoicePane();
 		prologEngineChoiceModel = prologEngineChoicePane.getModel();
 		prologEngineOrganizer = new PrologEngineOrganizer(driverChoiceModel, prologEngineChoiceModel, profileFactory, executor); //will register itself as an observer of the driver choice model
-
-		AddDriverPane addDriverPane = new AddDriverPane(prologEngineOrganizer);
+		AddDriverPane addDriverPane = new AddDriverPane(driverChoiceModel);
 		
 		BooleanProperty createEngineDisabled = new SimpleBooleanProperty();
 		createEngineDisabled.bind(Bindings.not(driverChoiceModel.selectedDriverEnabledProperty()));
@@ -85,12 +87,49 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		driverAndEnginePane = new GridPane();
 		driverAndEnginePane.add(driverChooserPane, 0, 0, 2, 1);
 		driverAndEnginePane.add(prologEngineChoicePane, 2, 0);
-		//driverAndEnginePane.add(addDriverPane, 0,1);
-		driverAndEnginePane.add(startPrologEnginePane, 1,1);
-		driverAndEnginePane.add(shutdownPrologEnginePane, 2,1);
+		
+		HBox buttonsPane = new HBox();
+		//buttonsPane.setAlignment(Pos.CENTER);
+//		buttonsPane.setMaxWidth(Double.MAX_VALUE);
+		
+		HBox addDriverPaneHBox = new HBox();
+		//addDriverPaneHBox.setMaxWidth(Double.MAX_VALUE);
+		//addDriverPaneHBox.setAlignment(Pos.CENTER);
+		addDriverPaneHBox.setAlignment(Pos.CENTER_RIGHT);
+		HBox.setHgrow(addDriverPaneHBox, Priority.SOMETIMES);
+		addDriverPaneHBox.getChildren().add(addDriverPane);
+		
+		HBox startPrologEnginePaneHBox = new HBox();
+		//startPrologEnginePaneHBox.setMaxWidth(Double.MAX_VALUE);
+		//startPrologEnginePaneHBox.setAlignment(Pos.CENTER);
+		startPrologEnginePaneHBox.setAlignment(Pos.CENTER_RIGHT);
+		HBox.setHgrow(startPrologEnginePaneHBox, Priority.SOMETIMES);
+		startPrologEnginePaneHBox.getChildren().add(startPrologEnginePane);
+		
+		HBox shutdownPrologEnginePaneHBox = new HBox();
+		//shutdownPrologEnginePaneHBox.setMaxWidth(Double.MAX_VALUE);
+		//shutdownPrologEnginePaneHBox.setAlignment(Pos.CENTER);
+		shutdownPrologEnginePaneHBox.setAlignment(Pos.CENTER_RIGHT);
+		HBox.setHgrow(shutdownPrologEnginePaneHBox, Priority.SOMETIMES);
+		shutdownPrologEnginePaneHBox.getChildren().add(shutdownPrologEnginePane);
+		
+		buttonsPane.getChildren().addAll(addDriverPaneHBox, startPrologEnginePaneHBox, shutdownPrologEnginePaneHBox);
+		
+//		addDriverPane.setMaxWidth(Double.MAX_VALUE);
+//		startPrologEnginePane.setMaxWidth(Double.MAX_VALUE);
+//		shutdownPrologEnginePane.setMaxWidth(Double.MAX_VALUE);
+//
+//		HBox.setHgrow(addDriverPane, Priority.SOMETIMES);
+//		HBox.setHgrow(startPrologEnginePane, Priority.SOMETIMES);
+//		HBox.setHgrow(shutdownPrologEnginePane, Priority.SOMETIMES);
+		
+		
+//		driverAndEnginePane.add(addDriverPane, 0,1);
+//		driverAndEnginePane.add(startPrologEnginePane, 1,1);
+//		driverAndEnginePane.add(shutdownPrologEnginePane, 2,1);
 		
 		//getChildren().addAll(toolbarPane, driverAndEnginePane);
-		getChildren().addAll(driverAndEnginePane);
+		getChildren().addAll(driverAndEnginePane, buttonsPane);
 	}
 	
 	private void style() {
