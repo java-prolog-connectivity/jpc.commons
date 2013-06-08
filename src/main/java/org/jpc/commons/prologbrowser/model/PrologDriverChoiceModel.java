@@ -126,6 +126,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 			return false;
 		} else { //this ugly code needs to be revisited
 			drivers.add(driver);
+			driver.addStateListener(this);
 			String currentPrologEngineType = getSelectedPrologEngine();
 			if(currentPrologEngineType != null && currentPrologEngineType.equals(driver.getEngineName()))
 				filteredDrivers.add(driver);

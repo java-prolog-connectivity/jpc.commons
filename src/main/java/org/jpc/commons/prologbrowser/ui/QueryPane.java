@@ -38,8 +38,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import org.jpc.commons.prologbrowser.model.QueryModel;
 import org.jpc.engine.logtalk.LogtalkLibrary;
 import org.jpc.engine.logtalk.LogtalkLibraryItem;
+import org.jpc.resource.LogicResource;
 import org.jpc.resource.LogtalkResource;
-import org.jpc.resource.PrologResource;
 import org.minitoolbox.fx.FXUtil;
 
 import com.google.common.base.Joiner;
@@ -65,12 +65,9 @@ public class QueryPane extends VBox {
 	private Button nextSolutionButton;
 	private Button cancelQueryButton;
 	
-	private HBox prologShortcutsButtonsPane;
-	private Button consultButton;
 	private Button ensureLoadedButton;
 	
-	private HBox logtalkShortcutsButtonsPane;
-	private Button logtalkLoadButton;
+	private HBox loaderShortcutsButtonsPane;
 	private Button logtalkLoadLibraryButton;
 	
 	private HBox editionButtonsPane;
@@ -131,26 +128,13 @@ public class QueryPane extends VBox {
 		cancelQueryButton.setTooltip(new Tooltip("Cancel"));
 		
 		
-		prologShortcutsButtonsPane = new HBox();
-		
-		Image consultImage = BrowserImage.consultImage();
-		consultButton = new Button("Consult", new ImageView(consultImage));
-		consultButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-		consultButton.setTooltip(new Tooltip("Consult"));
-		
+		loaderShortcutsButtonsPane = new HBox();
+
 		Image ensureLoadedImage = BrowserImage.ensureLoadedImage();
 		ensureLoadedButton = new Button("Ensure Loaded", new ImageView(ensureLoadedImage));
 		ensureLoadedButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		ensureLoadedButton.setTooltip(new Tooltip("Ensure loaded"));
-		
-		
-		logtalkShortcutsButtonsPane = new HBox();
-		
-		Image logtalkLoadImage = BrowserImage.logtalkLoadImage();
-		logtalkLoadButton = new Button("[⊨]", new ImageView(logtalkLoadImage));
-		logtalkLoadButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-		logtalkLoadButton.setTooltip(new Tooltip("Logtalk load"));
-		
+
 		Image logtalkLoadLibraryImage = BrowserImage.logtalkLoadLibraryImage();
 		logtalkLoadLibraryButton = new Button("[⊨]", new ImageView(logtalkLoadLibraryImage));
 		logtalkLoadLibraryButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -185,8 +169,7 @@ public class QueryPane extends VBox {
 		
 		queryButtonsPane.getChildren().addAll(allSolutionsButton, oneSolutionButton, nextSolutionButton, cancelQueryButton);
 		editionButtonsPane.getChildren().addAll(saveButton, openButton, clearTextButton, copyToClipboardButton);
-		prologShortcutsButtonsPane.getChildren().addAll(consultButton, ensureLoadedButton);
-		logtalkShortcutsButtonsPane.getChildren().addAll(logtalkLoadButton, logtalkLoadLibraryButton);
+		loaderShortcutsButtonsPane.getChildren().addAll(ensureLoadedButton, logtalkLoadLibraryButton);
 		
 		
 		
@@ -194,7 +177,7 @@ public class QueryPane extends VBox {
 		//LogtalkLoadPane logtalkLoadPane = new LogtalkLoadPane(prologEngineChoiceModel, prologEngineChoiceModel.prologEngineSelectedProperty(), executor);
 		//loadButtonsPane.getChildren().addAll(ensureLoadedPane, logtalkLoadPane);
 		
-		toolbarPane.getItems().addAll(queryButtonsPane, prologShortcutsButtonsPane, logtalkShortcutsButtonsPane, editionButtonsPane);
+		toolbarPane.getItems().addAll(queryButtonsPane, loaderShortcutsButtonsPane, editionButtonsPane);
 		//toolbarPane.setMaxWidth(Control.USE_PREF_SIZE);
 		//HBox.setHgrow(toolbarPane, Priority.NEVER);
 //		VBox vBoxToolBar = new VBox();
@@ -244,10 +227,8 @@ public class QueryPane extends VBox {
 		allSolutionsButton.disableProperty().bind(model.allSolutionsDisabledProperty());
 		nextSolutionButton.disableProperty().bind(model.nextSolutionDisabledProperty());
 		cancelQueryButton.disableProperty().bind(model.cancelDisabledProperty());
-		
-		consultButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
+
 		ensureLoadedButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
-		logtalkLoadButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
 		logtalkLoadLibraryButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
 		
 		openButton.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
@@ -270,10 +251,8 @@ public class QueryPane extends VBox {
 		allSolutionsButton.disableProperty().unbind();
 		nextSolutionButton.disableProperty().unbind();
 		cancelQueryButton.disableProperty().unbind();
-		
-		consultButton.disableProperty().unbind();
+
 		ensureLoadedButton.disableProperty().unbind();
-		logtalkLoadButton.disableProperty().unbind();
 		logtalkLoadLibraryButton.disableProperty().unbind();
 		
 		openButton.disableProperty().unbind();
@@ -292,9 +271,7 @@ public class QueryPane extends VBox {
 		allSolutionsButton.disableProperty().set(true);
 		nextSolutionButton.disableProperty().set(true);
 		cancelQueryButton.disableProperty().set(true);
-		consultButton.disableProperty().set(true);
 		ensureLoadedButton.disableProperty().set(true);
-		logtalkLoadButton.disableProperty().set(true);
 		logtalkLoadLibraryButton.disableProperty().set(true);
 		openButton.disableProperty().set(true);
 		//saveButton.disableProperty().set(true);
@@ -302,25 +279,36 @@ public class QueryPane extends VBox {
 		//copyToClipboardButton.disableProperty().set(true);
 	}
 	
-	private File selectPrologFile() {
+	
+	
+//	private List<File> selectPrologFiles() {
+//		FileChooser fc = new FileChooser();
+//		ExtensionFilter ef = FXUtil.createExtensionFilter("Prolog files", PrologResource.getPrologExtensions());
+//		fc.getExtensionFilters().addAll(ef);
+//		fc.setTitle("Select Prolog files");
+//		//fc.setInitialDirectory(new File(System.getProperty("user.dir") + File.separator));
+//		return fc.showOpenMultipleDialog(QueryPane.this.getScene().getWindow());
+//	}
+//	
+//	private List<File> selectLogtalkFiles() {
+//		FileChooser fc = new FileChooser();
+//		ExtensionFilter ef = FXUtil.createExtensionFilter("Logtalk files", LogtalkResource.getLogtalkExtensions());
+//		fc.getExtensionFilters().addAll(ef);
+//		fc.setTitle("Select Logtalk files");
+//		//fc.setInitialDirectory(new File(System.getProperty("user.dir") + File.separator));
+//		return fc.showOpenMultipleDialog(QueryPane.this.getScene().getWindow());
+//	}
+	
+	private List<File> selectPrologOrLogtalkFiles() {
 		FileChooser fc = new FileChooser();
-		ExtensionFilter ef = FXUtil.createExtensionFilter("Prolog files", PrologResource.getPrologExtensions());
+		ExtensionFilter ef = FXUtil.createExtensionFilter("Prolog files", LogicResource.getLogicResourceExtensions());
 		fc.getExtensionFilters().addAll(ef);
-		fc.setTitle("Select Prolog file");
+		fc.setTitle("Select Prolog files");
 		//fc.setInitialDirectory(new File(System.getProperty("user.dir") + File.separator));
-		File selectedFile = fc.showOpenDialog(QueryPane.this.getScene().getWindow());
-		return selectedFile;
+		return fc.showOpenMultipleDialog(QueryPane.this.getScene().getWindow());
 	}
 	
-	private File selectLogtalkFile() {
-		FileChooser fc = new FileChooser();
-		ExtensionFilter ef = FXUtil.createExtensionFilter("Logtalk files", LogtalkResource.getLogtalkExtensions());
-		fc.getExtensionFilters().addAll(ef);
-		fc.setTitle("Select Logtalk file");
-		//fc.setInitialDirectory(new File(System.getProperty("user.dir") + File.separator));
-		File selectedFile = fc.showOpenDialog(QueryPane.this.getScene().getWindow());
-		return selectedFile;
-	}
+	
 	
 	private void addListeners() {
 		
@@ -354,46 +342,12 @@ public class QueryPane extends VBox {
 			}
 		});
 		
-		consultButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				File selectedFile = selectPrologFile();
-				if(selectedFile != null) {
-					StringBuilder sb = new StringBuilder();
-					sb.append("consult('");
-					sb.append(selectedFile.getAbsolutePath());
-					sb.append("')");
-					queryTextArea.setText(sb.toString());
-					model.oneSolution();
-				}
-			}
-		});
-		
 		ensureLoadedButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				File selectedFile = selectPrologFile();
-				if(selectedFile != null) {
-					StringBuilder sb = new StringBuilder();
-					sb.append("ensure_loaded('");
-					sb.append(selectedFile.getAbsolutePath());
-					sb.append("')");
-					queryTextArea.setText(sb.toString());
-					model.oneSolution();
-				}
-			}
-		});
-		
-		logtalkLoadButton.setOnAction(new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent event) {
-				File selectedFile = selectLogtalkFile();
-				if(selectedFile != null) {
-					StringBuilder sb = new StringBuilder();
-					sb.append("logtalk_load('");
-					sb.append(selectedFile.getAbsolutePath());
-					sb.append("')");
-					queryTextArea.setText(sb.toString());
+				List<File> selectedFiles = selectPrologOrLogtalkFiles();
+				if(selectedFiles != null) {
+					queryTextArea.setText(loaderScript(selectedFiles));
 					model.oneSolution();
 				}
 			}
@@ -480,12 +434,31 @@ public class QueryPane extends VBox {
 		});
 	}
 	
+	private String loaderScript(List<File> files) {
+		List<String> loadingDirectives = new ArrayList<>();
+		for(File file : files) {
+			if(LogtalkResource.hasLogtalkExtension(file.getName()))
+				loadingDirectives.add("logtalk_load('"+file.getAbsolutePath()+"')");
+			else
+				loadingDirectives.add("ensure_loaded('"+file.getAbsolutePath()+"')");
+		}
+		return Joiner.on(", ").join(loadingDirectives);
+	}
+	
+//	private String asFilesListString(List<File> files) {
+//		StringBuilder sb = new StringBuilder();
+//		List<String> filesNames = new ArrayList<>();
+//		for(File file : files) {
+//			filesNames.add("'" + file.getAbsolutePath() + "'");
+//		}
+//		return Joiner.on(", ").join(filesNames);
+//	}
+	
 	private void style() {
 		getStyleClass().addAll(JPC_GRID);
 		status.getStyleClass().add(JPC_QUERY_STATUS);
 		queryButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
-		prologShortcutsButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
-		logtalkShortcutsButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
+		loaderShortcutsButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		editionButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		toolbarPane.getStyleClass().add(JPC_TOOLBAR_CONTAINER);
 		//queryResultTitle.getStyleClass().add(JPC_TITLE);

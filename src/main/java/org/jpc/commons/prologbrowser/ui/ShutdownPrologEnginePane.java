@@ -14,14 +14,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
 import org.jpc.engine.prolog.PrologEngine;
-import org.jpc.engine.prolog.driver.PrologEngineManager;
 import org.jpc.engine.provider.PrologEngineProvider;
 
 public class ShutdownPrologEnginePane extends HBox {
 
 	private Button shutdownEngineButton;
 	
-	public ShutdownPrologEnginePane(final PrologEngineProvider prologEngineProvider, final PrologEngineManager prologEngineManager, BooleanProperty disabled) {
+	public ShutdownPrologEnginePane(final PrologEngineProvider prologEngineProvider, BooleanProperty disabled) {
 		setMaxWidth(Double.MAX_VALUE);
 		setAlignment(Pos.CENTER_RIGHT);
 		Image shutdownImage = BrowserImage.shutdownImage();
@@ -33,7 +32,8 @@ public class ShutdownPrologEnginePane extends HBox {
 			@Override
 			public void handle(ActionEvent event) {
 				PrologEngine prologEngine = prologEngineProvider.getPrologEngine();
-				prologEngineManager.shutdownPrologEngine(prologEngine);
+				prologEngine.close();
+				//prologEngineManager.shutdownPrologEngine(prologEngine);
 			}
 		});
 		getChildren().addAll(shutdownEngineButton);

@@ -16,7 +16,6 @@ import org.jpc.engine.listener.PrologEngineLifeCycleListener;
 import org.jpc.engine.profile.PrologEngineProfileFactory;
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
-import org.jpc.engine.prolog.driver.PrologEngineManager;
 import org.jpc.util.naming.NamingUtil;
 import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
@@ -27,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * @author sergioc
  *
  */
-public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>, PrologEngineFactoryInvalidatedListener, PrologEngineLifeCycleListener {
+public class PrologEngineOrganizer implements PrologEngineFactory<PrologEngine>, PrologEngineFactoryInvalidatedListener, PrologEngineLifeCycleListener {
 
 	private static Logger logger = LoggerFactory.getLogger(PrologEngineOrganizer.class);
 	
@@ -178,12 +177,15 @@ public class PrologEngineOrganizer implements PrologEngineManager<PrologEngine>,
 		return prologEngineModel;
 	}
 
+	/*
 	@Override
 	public void shutdownPrologEngine(PrologEngine prologEngine) {
-		PrologEngineModel prologEngineModel = prologEngineChoiceModel.getPrologEngine();
-		prologEngineModel.close();
+//		PrologEngineModel prologEngineModel = prologEngineChoiceModel.getPrologEngine();
+//		prologEngineModel.close();
+		prologEngine.close();
 	}
-
+*/
+	
 	@Override
 	public boolean isDisabled() {
 		PrologEngineFactory factory = getPrologEngineDriver();

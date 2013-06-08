@@ -37,7 +37,7 @@ public class QueryModel implements QueryListener {
 	private Collection<QueryListener> listeners;
 	
 	//private Executor abortQueryExecutor;
-	private Executor queryExecutor; //a dedicated executor
+	private Executor queryExecutor; //the query executor
 	
 	//ENGINE PROPERTIES
 	private BooleanProperty engineReady;

@@ -14,7 +14,6 @@ import javafx.util.StringConverter;
 
 import org.jpc.query.QuerySolution;
 import org.jpc.term.Term;
-import org.minitoolbox.fx.FXUtil;
 
 public class QueryResultModel {
 

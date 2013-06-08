@@ -73,7 +73,7 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		
 		BooleanProperty shutdownEngineDisabled = new SimpleBooleanProperty();
 		shutdownEngineDisabled.bind(Bindings.not(prologEngineChoiceModel.selectedEngineCloseableProperty()));
-		ShutdownPrologEnginePane shutdownPrologEnginePane = new ShutdownPrologEnginePane(prologEngineChoiceModel, prologEngineOrganizer, shutdownEngineDisabled);
+		ShutdownPrologEnginePane shutdownPrologEnginePane = new ShutdownPrologEnginePane(prologEngineChoiceModel, shutdownEngineDisabled);
 		
 		driverChoiceModel.selectFirst();
 
