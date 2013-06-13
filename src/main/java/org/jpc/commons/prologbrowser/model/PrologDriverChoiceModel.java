@@ -71,7 +71,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 	}
 	
 	
-	public PrologDriverChoiceModel(Iterable<PrologDriverModel> allDrivers, 
+	public PrologDriverChoiceModel(Collection<PrologDriverModel> allDrivers, 
 			ObservableList<String> engineTypes,
 			ObjectProperty<MultipleSelectionModel<String>> engineTypesSelectionModelProperty,
 			ObservableList<PrologDriverModel> filteredDrivers,
@@ -84,7 +84,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 		this.driverSelectionObservers = CollectionsUtil.createWeakSet();
 		nameOccurrences = new HashMap<>();
 		
-		if(allDrivers == null || !allDrivers.iterator().hasNext()) {
+		if(allDrivers == null || allDrivers.isEmpty()) {
 			Set<PrologEngineDriver> allDriversClassPath = DriverUtil.findDrivers();
 			allDrivers = asDriverModels(allDriversClassPath);
 		}
@@ -111,24 +111,24 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 	}
 	
 	public boolean addDriver(PrologDriverModel driver) {
-		Multimap<String, PrologDriverModel> libraryNamesToDriverMultimap = groupedDrivers.get(driver.getEngineName());
+		Multimap<String, PrologDriverModel> libraryNamesToDriverMultimap = groupedDrivers.get(driver.getEngineDescription().getName());
 		if(libraryNamesToDriverMultimap == null) {
 			libraryNamesToDriverMultimap = TreeMultimap.create(new PrologEngineTypeComparator(), new PrologEngineDriverComparator());
-			groupedDrivers.put(driver.getEngineName(), libraryNamesToDriverMultimap);
+			groupedDrivers.put(driver.getEngineDescription().getName(), libraryNamesToDriverMultimap);
 			//libraryNameToDriversMultimap.put(driver.getLibraryName(), driver);
 			//libraryNamesToDriverMultimaps.add(libraryNameToDriversMultimap);
-			engineTypes.add(driver.getEngineName());
+			engineTypes.add(driver.getEngineDescription().getName());
 			Collections.sort(engineTypes, new PrologEngineTypeComparator());
 		}
 		Collection<PrologDriverModel> drivers = libraryNamesToDriverMultimap.get(driver.getLibraryName());
 		if(findDriverByName(drivers, driver.getName()) != null) {
-			logger.warn("A driver with name " + driver.getName() + " for the " + driver.getEngineName() + " Prolog engine already exists.");
+			logger.warn("A driver with name " + driver.getName() + " for the " + driver.getEngineDescription().getName() + " Prolog engine already exists.");
 			return false;
 		} else { //this ugly code needs to be revisited
 			drivers.add(driver);
 			driver.addStateListener(this);
 			String currentPrologEngineType = getSelectedPrologEngine();
-			if(currentPrologEngineType != null && currentPrologEngineType.equals(driver.getEngineName()))
+			if(currentPrologEngineType != null && currentPrologEngineType.equals(driver.getEngineDescription().getName()))
 				filteredDrivers.add(driver);
 			return true;
 		}

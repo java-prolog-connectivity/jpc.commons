@@ -34,19 +34,38 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		closeable = new SimpleBooleanProperty(false);
 		multiThreaded = new SimpleBooleanProperty(false);
 		name = new SimpleStringProperty();
-		
+		engineLifeCycleListeners = CollectionsUtil.createWeakSet();
 		this.executor = executor;
-		this.engineLifeCycleListeners = CollectionsUtil.createWeakSet();
-		this.multiQueryModel = new MultiQueryModel(this, executor);
+		multiQueryModel = new MultiQueryModel(this, executor);
 	}
 
+	public PrologEngineModel(Executor executor, PrologEngine prologEngine) {
+		this(executor);
+		setPrologEngine(prologEngine);
+	}
+	
+	public PrologEngineModel(Executor executor, PrologEngine prologEngine, String name) {
+		this(executor, prologEngine);
+		setName(name);
+	}
+	
 	public MultiQueryModel getMultiQueryModel() {
 		return multiQueryModel;
 	}
 	
 	@Override
-	protected synchronized void setPrologEngine(PrologEngine prologEngine) {
+	protected void setPrologEngine(PrologEngine prologEngine) {
 		super.setPrologEngine(prologEngine);
+		setStartupTime(System.nanoTime());
+		FXUtil.runInFXApplicationThread(new Runnable() {
+			@Override
+			public void run() {
+				ready.set(true);
+				multiThreaded.set(PrologEngineModel.super.isMultiThreaded());
+				refreshCloseable();
+				notifyOnCreation();
+			}
+		});
 	}
 	
 	@Override
@@ -97,21 +116,6 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 			@Override
 			public void run() {
 				setPrologEngine(prologEngineFactory.createPrologEngine());
-//				try {
-//				Thread.sleep(500); //TODO delete
-//				} catch (InterruptedException e) {
-//					throw new RuntimeException(e);
-//				}
-				setStartupTime(System.nanoTime());
-				FXUtil.runInFXApplicationThread(new Runnable() {
-					@Override
-					public void run() {
-						ready.set(true);
-						multiThreaded.set(PrologEngineModel.super.isMultiThreaded());
-						refreshCloseable();
-						notifyOnCreation();
-					}
-				});
 			}
 		});
 	}

@@ -69,16 +69,21 @@ public class PrologEngineOrganizer implements PrologEngineFactory<PrologEngine>,
 		return driverProvider.getPrologEngineFactory();
 	}
 	
-	/**
-	 * @param driver the driver to set
-	 */
-	private void setDriverSelection(PrologEngineFactory driver) {
-		resetDriverSelection();
+	private ObservableList<PrologEngineModel> getPrologEnginesForDriver(PrologEngineFactory driver) {
 		ObservableList<PrologEngineModel> prologEngines = driverMap.get(driver);
 		if(prologEngines == null) {
 			prologEngines = FXCollections.<PrologEngineModel>observableArrayList();
 			driverMap.put(driver, prologEngines);
 		}
+		return prologEngines;
+	}
+	
+	/**
+	 * @param driver the driver to set
+	 */
+	private void setDriverSelection(PrologEngineFactory driver) {
+		resetDriverSelection();
+		ObservableList<PrologEngineModel> prologEngines = getPrologEnginesForDriver(driver);
 			
 		currentDriverPrologEngines.setAll(prologEngines);
 		driverMap.put(driver, currentDriverPrologEngines);
@@ -171,12 +176,17 @@ public class PrologEngineOrganizer implements PrologEngineFactory<PrologEngine>,
 		prologEngineModel.setName(driver.getShortDescription());
 		NamingUtil.renameIfRepeated(prologEngineModel, namesPrologEngines);
 		prologEngineModel.addEngineLifeCycleListener(this);
-		currentDriverPrologEngines.add(prologEngineModel);
+		//currentDriverPrologEngines.add(prologEngineModel);
+		addPrologEngine(driver, prologEngineModel);
 		prologEngineSelectionModelProperty.get().select(prologEngineModel);
 		prologEngineModel.initialize(prologEngineFactory);
 		return prologEngineModel;
 	}
 
+	public void addPrologEngine(PrologDriverModel driver, PrologEngineModel prologEngineModel) {
+		getPrologEnginesForDriver(driver).add(prologEngineModel);
+	}
+	
 	/*
 	@Override
 	public void shutdownPrologEngine(PrologEngine prologEngine) {

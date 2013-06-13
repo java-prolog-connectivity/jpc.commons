@@ -3,6 +3,10 @@ package org.jpc.commons.prologbrowser.ui;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_GRID;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 
 import javafx.application.Application;
@@ -18,12 +22,13 @@ import javafx.scene.layout.VBox;
 import org.jpc.commons.prologbrowser.model.PrologDriverChoiceModel;
 import org.jpc.commons.prologbrowser.model.PrologDriverModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineChoiceModel;
+import org.jpc.commons.prologbrowser.model.PrologEngineModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineOrganizer;
 import org.jpc.engine.profile.PrologEngineProfileFactory;
 
 public class PrologDriverAndEngineManagerPane extends VBox {
 
-	private Iterable<PrologDriverModel> drivers;
+	private Collection<PrologDriverModel> drivers;
 	private PrologEngineProfileFactory profileFactory;
 	private Application app;
 	private Executor executor;
@@ -37,13 +42,23 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 	//private HBox lifeCycleButtonsPane;
 	
 
-	public PrologDriverAndEngineManagerPane(Iterable<PrologDriverModel> drivers, PrologEngineProfileFactory profileFactory, Application app, Executor executor) {
+	public PrologDriverAndEngineManagerPane(Collection<PrologDriverModel> drivers, PrologEngineProfileFactory profileFactory, Application app, Executor executor) {
 		this.drivers = drivers;
 		this.profileFactory = profileFactory;
 		this.app = app;
 		this.executor = executor;
 		draw();
 		style();
+	}
+	
+	public PrologDriverAndEngineManagerPane(Map<PrologDriverModel, List<PrologEngineModel>> driverMap, PrologEngineProfileFactory profileFactory, Application app, Executor executor) {
+		this(driverMap.keySet(), profileFactory, app, executor);
+		for(Entry<PrologDriverModel, List<PrologEngineModel>> driverEntry : driverMap.entrySet()) {
+			PrologDriverModel driver = driverEntry.getKey();
+			for(PrologEngineModel prologEngine : driverEntry.getValue()) {
+				prologEngineOrganizer.addPrologEngine(driver, prologEngine);
+			}
+		}
 	}
 	
 	public PrologEngineChoiceModel getPrologEngineChoiceModel() {

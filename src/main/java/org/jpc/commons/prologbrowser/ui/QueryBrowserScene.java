@@ -3,6 +3,9 @@ package org.jpc.commons.prologbrowser.ui;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CONTAINER;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_QUERY_BROWSER;
+
+import java.util.Collection;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -15,7 +18,7 @@ public class QueryBrowserScene extends Scene {
 	private HBox root;
 	private QueryBrowserPane queryBrowserPane;
 	
-	public QueryBrowserScene(Application app, Iterable<PrologDriverModel> drivers) {
+	public QueryBrowserScene(Application app, Collection<PrologDriverModel> drivers) {
 		super(new HBox());
 		this.app = app;
 		root = (HBox) this.getRoot();
@@ -23,7 +26,6 @@ public class QueryBrowserScene extends Scene {
 		
 		root.getChildren().add(queryBrowserPane);
 		style();
-		
 	}
 	
 	private void style() {
@@ -34,4 +36,5 @@ public class QueryBrowserScene extends Scene {
 	public void stop() {
 		queryBrowserPane.stop();
 	}
+
 }

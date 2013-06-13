@@ -26,8 +26,8 @@ public class PrologDriverModel<T extends PrologEngine> extends PrologEngineDrive
 		Collections.sort(orderedList, new Comparator<PrologDriverModel>(){
 			@Override
 			public int compare(PrologDriverModel d1, PrologDriverModel d2) {
-				if(!d1.getEngineName().equals(d2.getEngineName()))
-					return d1.getEngineName().compareTo(d2.getEngineName());
+				if(!d1.getEngineDescription().getName().equals(d2.getEngineDescription().getName()))
+					return d1.getEngineDescription().getName().compareTo(d2.getEngineDescription().getName());
 				else if(!d1.getLibraryName().equals(d2.getLibraryName()))
 					return d1.getLibraryName().compareTo(d2.getLibraryName());
 				else
@@ -38,6 +38,11 @@ public class PrologDriverModel<T extends PrologEngine> extends PrologEngineDrive
 	
 	public PrologDriverModel(PrologEngineDriver<T> driver) {
 		super(driver);
+	}
+	
+	public PrologDriverModel(PrologEngineDriver<T> driver, String name) {
+		super(driver);
+		setName(name);
 	}
 	
 	@Override

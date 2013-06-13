@@ -6,6 +6,7 @@ import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_SECTION;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_TITLE;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.DISOLVING_PANE_ANIMATION_MILLIS;
 
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -45,7 +46,7 @@ public class QueryBrowserPane extends VBox {
 	//If it would not have been declared as an instance variable it will be garbage collected and the controller will not work after a while.
 	private MultiQueryController multiQueryController; 
 	
-	public QueryBrowserPane(Application app, Iterable<PrologDriverModel> drivers) {
+	public QueryBrowserPane(Application app, Collection<PrologDriverModel> drivers) {
 		executor = Executors.newCachedThreadPool();
 		
 		settingsTitle = new Hyperlink("Settings");

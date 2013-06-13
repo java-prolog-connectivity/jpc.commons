@@ -6,6 +6,9 @@ import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_LIST_LABEL;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_HEIGHT_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_WIDTH_LIST;
+
+import java.util.Collection;
+
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -39,7 +42,7 @@ public class PrologDriverChoicePane extends GridPane {
 	private ListView<PrologDriverModel> prologDrivers;
 	
 	
-	public PrologDriverChoicePane(Iterable<PrologDriverModel> drivers, Application app) {
+	public PrologDriverChoicePane(Collection<PrologDriverModel> drivers, Application app) {
 		this.app = app;
 		draw();
 		model = new PrologDriverChoiceModel(drivers, engineTypes.getItems(), engineTypes.selectionModelProperty(), prologDrivers.getItems(), prologDrivers.selectionModelProperty());
