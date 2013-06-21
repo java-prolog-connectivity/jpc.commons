@@ -7,11 +7,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
+import org.jpc.engine.prolog.OperatorsContext;
 import org.jpc.query.QuerySolution;
 import org.jpc.term.Term;
 
@@ -56,7 +58,6 @@ public class QueryResultModel {
 		return queryResult;
 	}
 	
-	
 	private void configureColumns() {
 		getColumns().clear();
 		List<String> nonAnonymousVariablesNames = getNonAnonymousVariablesNames();
@@ -66,19 +67,29 @@ public class QueryResultModel {
 				dataColumn.setCellValueFactory(new MapValueFactory(nonAnonymousVarName));
 				dataColumn.setMinWidth(130);
 				Callback<TableColumn<Map<String, Term>, Term>, TableCell<Map<String, Term>, Term>>
-	            cellFactoryForMap = new Callback<TableColumn<Map<String, Term>, Term>, TableCell<Map<String, Term>, Term>>() {
+	            	cellFactoryForMap = new Callback<TableColumn<Map<String, Term>, Term>, TableCell<Map<String, Term>, Term>>() {
 	                    @Override
 	                    public TableCell call(TableColumn p) {
-	                        return new TextFieldTableCell(new StringConverter() {
+	                    	final TextFieldTableCell tableCell = new TextFieldTableCell();
+	                    	StringConverter sc = new StringConverter() {
 	                            @Override
-	                            public String toString(Object t) {
-	                                return t.toString();
+	                            public String toString(Object o) {
+	                            	TableRow row = tableCell.getTableRow();
+	    	                    	final int index = row.getIndex();
+	                            	Term term = (Term) o;
+	                            	QuerySolution querySolution = queryResult.get(index);
+	                            	OperatorsContext oc = querySolution.getOperatorsContext();
+	                            	if(oc==null)
+	                            		throw new RuntimeException("Operators Context not available");
+	                                return term.toString(oc);
 	                            }
 	                            @Override
 	                            public Object fromString(String string) {
 	                                return null;
 	                            }                                    
-	                        });
+	                        };
+	                        tableCell.setConverter(sc);
+	                        return tableCell;
 	                    }
 				};
 				dataColumn.setCellFactory(cellFactoryForMap);
