@@ -10,12 +10,10 @@ import javafx.beans.property.LongProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import org.jpc.error.PrologError;
@@ -46,7 +44,6 @@ public class QueryModel implements QueryListener {
 	
 	
 	//QUERY PROPERTIES
-	private Property<ObservableList<String>> queryHistory;
 	private StringProperty queryText;
 	private BooleanProperty queryOpen; //holds true if the query is open
 	private BooleanProperty showingResult; //holds true if the query has just finished and its results are being shown to the user
@@ -84,7 +81,6 @@ public class QueryModel implements QueryListener {
 		BooleanProperty nonMultiThreadedEngineIsQueried = new SimpleBooleanProperty(); //holds true if the engine that spawned the query is not multithreaded and there is aslready a query in progress.
 		nonMultiThreadedEngineIsQueried.bind(engineIsQueried.and(Bindings.not(engineIsMultiThreaded)));
 		
-		queryHistory = new SimpleObjectProperty<>(FXCollections.<String>observableArrayList());
 		listeners = CollectionsUtil.createWeakSet();
 		listeners.add(this); //the query model is a listener of the observed query. More listeners can be registered.
 		
@@ -212,10 +208,6 @@ public class QueryModel implements QueryListener {
 	
 	public StringProperty statusMessageProperty() {
 		return statusMessage;
-	}
-	
-	public Property<ObservableList<String>> queryHistoryProperty() {
-		return queryHistory;
 	}
 	
 	public void setQueryText(String text) {
@@ -383,12 +375,12 @@ public class QueryModel implements QueryListener {
 		});
 	}
 	
-	
 	private boolean initializeQuery() {
 		final String text = queryText.get();
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
+				Property<ObservableList<String>> queryHistory = prologEngineModel.queryHistoryProperty();
 				if(queryHistory.getValue().isEmpty() || !queryHistory.getValue().get(0).equals(text)) //add it to the history if it is not the same than the previous entry
 					queryHistory.getValue().add(0, text);
 			}

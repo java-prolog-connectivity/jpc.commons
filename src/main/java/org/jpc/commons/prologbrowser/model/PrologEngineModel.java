@@ -5,9 +5,13 @@ import java.util.concurrent.Executor;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import org.jpc.engine.listener.PrologEngineLifeCycleListener;
 import org.jpc.engine.prolog.PrologEngine;
@@ -26,7 +30,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 	private double startupTime; //the time the Prolog engine was created
 	private Executor executor;
 	private Collection<PrologEngineLifeCycleListener> engineLifeCycleListeners;
-	
+	private Property<ObservableList<String>> queryHistory;
 	private MultiQueryModel multiQueryModel;
 	
 	public PrologEngineModel(Executor executor) {
@@ -36,6 +40,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		name = new SimpleStringProperty();
 		engineLifeCycleListeners = CollectionsUtil.createWeakSet();
 		this.executor = executor;
+		queryHistory = new SimpleObjectProperty<>(FXCollections.<String>observableArrayList());
 		multiQueryModel = new MultiQueryModel(this, executor);
 	}
 
@@ -132,6 +137,10 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		return multiThreaded;
 	}
 	
+	public Property<ObservableList<String>> queryHistoryProperty() {
+		return queryHistory;
+	}
+	
 	public BooleanProperty closeableProperty() {
 		return closeable;
 	}
@@ -146,6 +155,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 			closeable.unbind();
 		closeable.set(b);
 	}
+
 	@Override
 	public void close() {
 		ready.set(false);
