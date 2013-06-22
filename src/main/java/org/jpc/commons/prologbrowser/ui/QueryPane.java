@@ -71,10 +71,13 @@ public class QueryPane extends VBox {
 	private Button logtalkLoadLibraryButton;
 	
 	private HBox editionButtonsPane;
-	private Button openButton;
-	private Button saveButton;
 	private Button clearTextButton;
 	private Button copyToClipboardButton;
+	
+	private HBox fileButtonsPane;
+	private Button openButton;
+	private Button saveButton;
+	
 	
 	private TextField status;
 	private TextArea queryTextArea;
@@ -143,16 +146,6 @@ public class QueryPane extends VBox {
 		
 		editionButtonsPane = new HBox();
 		
-		Image openImage = BrowserImage.openImage();
-		openButton = new Button("Open", new ImageView(openImage));
-		openButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-		openButton.setTooltip(new Tooltip("Open"));
-		
-		Image saveImage = BrowserImage.saveImage();
-		saveButton = new Button("Save", new ImageView(saveImage));
-		saveButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-		saveButton.setTooltip(new Tooltip("Save"));
-		
 		Image copyToClipboardImage = BrowserImage.clipboardImage();
 		copyToClipboardButton = new Button("Copy", new ImageView(copyToClipboardImage));
 		copyToClipboardButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
@@ -163,12 +156,28 @@ public class QueryPane extends VBox {
 		clearTextButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 		clearTextButton.setTooltip(new Tooltip("New"));
 		
+		
+		fileButtonsPane = new HBox();
+		
+		Image openImage = BrowserImage.openImage();
+		openButton = new Button("Open", new ImageView(openImage));
+		openButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+		openButton.setTooltip(new Tooltip("Open"));
+		
+		Image saveImage = BrowserImage.saveImage();
+		saveButton = new Button("Save", new ImageView(saveImage));
+		saveButton.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+		saveButton.setTooltip(new Tooltip("Save"));
+		
+		
+		
 		toolbarPane = new ToolBar();
 
 		queryTextArea = new TextArea();
 		
 		queryButtonsPane.getChildren().addAll(allSolutionsButton, oneSolutionButton, nextSolutionButton, cancelQueryButton);
-		editionButtonsPane.getChildren().addAll(saveButton, openButton, clearTextButton, copyToClipboardButton);
+		editionButtonsPane.getChildren().addAll(clearTextButton, copyToClipboardButton);
+		fileButtonsPane.getChildren().addAll(saveButton, openButton);
 		loaderShortcutsButtonsPane.getChildren().addAll(ensureLoadedButton, logtalkLoadLibraryButton);
 		
 		
@@ -177,7 +186,7 @@ public class QueryPane extends VBox {
 		//LogtalkLoadPane logtalkLoadPane = new LogtalkLoadPane(prologEngineChoiceModel, prologEngineChoiceModel.prologEngineSelectedProperty(), executor);
 		//loadButtonsPane.getChildren().addAll(ensureLoadedPane, logtalkLoadPane);
 		
-		toolbarPane.getItems().addAll(queryButtonsPane, loaderShortcutsButtonsPane, editionButtonsPane);
+		toolbarPane.getItems().addAll(queryButtonsPane, loaderShortcutsButtonsPane, editionButtonsPane, fileButtonsPane);
 		//toolbarPane.setMaxWidth(Control.USE_PREF_SIZE);
 		//HBox.setHgrow(toolbarPane, Priority.NEVER);
 //		VBox vBoxToolBar = new VBox();
@@ -220,7 +229,7 @@ public class QueryPane extends VBox {
 		busy.bind(Bindings.or(model.queryInProgressProperty(), executingCommand));
 		queryTextArea.textProperty().bindBidirectional(model.queryTextProperty());
 		queryTextArea.editableProperty().bind(model.queryTextEditableProperty());
-		history.itemsProperty().bind(model.queryHistoryProperty());
+		history.itemsProperty().bind(model.getPrologEngineModel().queryHistoryProperty());
 		history.disableProperty().bind(Bindings.not(model.queryTextEditableProperty()));
 		status.textProperty().bind(model.statusMessageProperty());
 		oneSolutionButton.disableProperty().bind(model.oneSolutionDisabledProperty());
@@ -460,6 +469,7 @@ public class QueryPane extends VBox {
 		queryButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		loaderShortcutsButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		editionButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
+		fileButtonsPane.getStyleClass().add(JPC_TOOLBAR_GROUP_PANE);
 		toolbarPane.getStyleClass().add(JPC_TOOLBAR_CONTAINER);
 		//queryResultTitle.getStyleClass().add(JPC_TITLE);
 		//firstRowToolBar.getStyleClass().add(JPC_TOOLBAR_CONTAINER);
