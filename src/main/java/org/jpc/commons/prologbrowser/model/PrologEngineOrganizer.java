@@ -7,15 +7,18 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.scene.control.MultipleSelectionModel;
 
 import org.jpc.engine.listener.PrologEngineLifeCycleListener;
 import org.jpc.engine.profile.PrologEngineProfileFactory;
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
+import org.jpc.query.QueryListener;
 import org.jpc.util.naming.NamingUtil;
 import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
@@ -40,14 +43,16 @@ public class PrologEngineOrganizer implements PrologEngineFactory<PrologEngine>,
 	private ObjectProperty<MultipleSelectionModel<PrologEngineModel>> prologEngineSelectionModelProperty;
 	private PrologEngineProfileFactory profileFactory;
 	private Map<String, Integer> namesPrologEngines;
+	private ObservableSet<QueryListener> queryListeners;
 	private Executor executor;
 	
-	public PrologEngineOrganizer(PrologDriverChoiceModel driverChoiceModel, PrologEngineChoiceModel prologEngineChoiceModel, PrologEngineProfileFactory profileFactory, Executor executor) {
+	public PrologEngineOrganizer(PrologDriverChoiceModel driverChoiceModel, PrologEngineChoiceModel prologEngineChoiceModel, PrologEngineProfileFactory profileFactory, ObservableSet<QueryListener> queryListeners, Executor executor) {
 		this.prologEngineChoiceModel = prologEngineChoiceModel;
 		this.currentDriverPrologEngines = prologEngineChoiceModel.getAvailablePrologEngines();
 		this.prologEngineSelectionModelProperty = prologEngineChoiceModel.selectionModelProperty();
 		this.driverProvider = driverChoiceModel;
 		this.profileFactory = profileFactory;
+		this.queryListeners = queryListeners;
 		this.executor = executor;
 		driverMap = new HashMap<>();
 		namesPrologEngines = new HashMap<>();
@@ -180,6 +185,8 @@ public class PrologEngineOrganizer implements PrologEngineFactory<PrologEngine>,
 		addPrologEngine(driver, prologEngineModel);
 		prologEngineSelectionModelProperty.get().select(prologEngineModel);
 		prologEngineModel.initialize(prologEngineFactory);
+		if(queryListeners != null)
+			Bindings.bindContent(prologEngineModel.getQueryListeners(), queryListeners);
 		return prologEngineModel;
 	}
 

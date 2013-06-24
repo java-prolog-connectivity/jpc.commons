@@ -1,7 +1,8 @@
 package org.jpc.commons.prologbrowser.model;
 
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import javafx.beans.binding.Bindings;
@@ -32,7 +33,7 @@ public class QueryModel implements QueryListener {
 	private static Logger logger = LoggerFactory.getLogger(QueryModel.class);
 	
 	//private File file; //a file in the file system where this query is persisted
-	private Collection<QueryListener> listeners;
+	private Set<QueryListener> listeners;
 	
 	//private Executor abortQueryExecutor;
 	private Executor queryExecutor; //the query executor
@@ -393,8 +394,9 @@ public class QueryModel implements QueryListener {
 			onException(e);
 			return false;
 		}
-		
-		query = new ObservableQuery(observedQuery, listeners);
+		Set<QueryListener> allListeners = new HashSet<>(prologEngineModel.getQueryListeners()); //engine listeners
+		allListeners.addAll(listeners); //query specific listeners
+		query = new ObservableQuery(observedQuery, allListeners);
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {

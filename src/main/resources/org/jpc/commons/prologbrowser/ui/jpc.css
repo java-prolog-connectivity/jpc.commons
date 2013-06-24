@@ -9,6 +9,10 @@
 	-fx-font-weight: normal;
 }
 
+.jpc-query-browser-section {
+	-fx-spacing: 10;
+}
+
 .jpc-query-browser-pane {
 	-fx-spacing: 10;
 }

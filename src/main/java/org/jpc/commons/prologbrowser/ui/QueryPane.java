@@ -92,11 +92,16 @@ public class QueryPane extends VBox {
 		style();
 		resetModel();
 		//disable();
+		queryResultPane.managedProperty().bind(queryResultPane.visibleProperty());
 	}
 	
 	public QueryPane(QueryModel model) {
 		this();
 		setModel(model);
+	}
+	
+	public BooleanProperty showQueryResultProperty() {
+		return queryResultPane.visibleProperty();
 	}
 	
 	private void draw() {

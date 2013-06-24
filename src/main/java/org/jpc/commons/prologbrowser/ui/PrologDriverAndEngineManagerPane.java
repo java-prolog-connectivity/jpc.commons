@@ -13,6 +13,7 @@ import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.ObservableSet;
 import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -25,6 +26,7 @@ import org.jpc.commons.prologbrowser.model.PrologEngineChoiceModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineOrganizer;
 import org.jpc.engine.profile.PrologEngineProfileFactory;
+import org.jpc.query.QueryListener;
 
 public class PrologDriverAndEngineManagerPane extends VBox {
 
@@ -40,19 +42,20 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 	
 	//private ToolBar toolbarPane;
 	//private HBox lifeCycleButtonsPane;
-	
+	private ObservableSet<QueryListener> queryListeners;
 
-	public PrologDriverAndEngineManagerPane(Collection<PrologDriverModel> drivers, PrologEngineProfileFactory profileFactory, Application app, Executor executor) {
+	public PrologDriverAndEngineManagerPane(Collection<PrologDriverModel> drivers, PrologEngineProfileFactory profileFactory, Application app, ObservableSet<QueryListener> queryListeners, Executor executor) {
 		this.drivers = drivers;
 		this.profileFactory = profileFactory;
 		this.app = app;
+		this.queryListeners = queryListeners;
 		this.executor = executor;
 		draw();
 		style();
 	}
 	
-	public PrologDriverAndEngineManagerPane(Map<PrologDriverModel, List<PrologEngineModel>> driverMap, PrologEngineProfileFactory profileFactory, Application app, Executor executor) {
-		this(driverMap.keySet(), profileFactory, app, executor);
+	public PrologDriverAndEngineManagerPane(Map<PrologDriverModel, List<PrologEngineModel>> driverMap, PrologEngineProfileFactory profileFactory, Application app, ObservableSet<QueryListener> queryListeners, Executor executor) {
+		this(driverMap.keySet(), profileFactory, app, queryListeners, executor);
 		for(Entry<PrologDriverModel, List<PrologEngineModel>> driverEntry : driverMap.entrySet()) {
 			PrologDriverModel driver = driverEntry.getKey();
 			for(PrologEngineModel prologEngine : driverEntry.getValue()) {
@@ -79,7 +82,7 @@ public class PrologDriverAndEngineManagerPane extends VBox {
 		
 		PrologEngineChoicePane prologEngineChoicePane = new PrologEngineChoicePane();
 		prologEngineChoiceModel = prologEngineChoicePane.getModel();
-		prologEngineOrganizer = new PrologEngineOrganizer(driverChoiceModel, prologEngineChoiceModel, profileFactory, executor); //will register itself as an observer of the driver choice model
+		prologEngineOrganizer = new PrologEngineOrganizer(driverChoiceModel, prologEngineChoiceModel, profileFactory, queryListeners, executor); //will register itself as an observer of the driver choice model
 		AddDriverPane addDriverPane = new AddDriverPane(driverChoiceModel);
 		
 		BooleanProperty createEngineDisabled = new SimpleBooleanProperty();

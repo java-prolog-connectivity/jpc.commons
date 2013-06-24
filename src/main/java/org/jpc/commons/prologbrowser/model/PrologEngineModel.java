@@ -1,6 +1,7 @@
 package org.jpc.commons.prologbrowser.model;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import javafx.beans.binding.Bindings;
@@ -17,6 +18,7 @@ import org.jpc.engine.listener.PrologEngineLifeCycleListener;
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.PrologEngineProxy;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
+import org.jpc.query.QueryListener;
 import org.jpc.util.naming.Nameable;
 import org.minitoolbox.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
@@ -32,7 +34,8 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 	private Collection<PrologEngineLifeCycleListener> engineLifeCycleListeners;
 	private Property<ObservableList<String>> queryHistory;
 	private MultiQueryModel multiQueryModel;
-	
+	private Set<QueryListener> queryListeners;
+
 	public PrologEngineModel(Executor executor) {
 		ready = new SimpleBooleanProperty(false); //it is not yet available when just initialized
 		closeable = new SimpleBooleanProperty(false);
@@ -42,6 +45,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		this.executor = executor;
 		queryHistory = new SimpleObjectProperty<>(FXCollections.<String>observableArrayList());
 		multiQueryModel = new MultiQueryModel(this, executor);
+		queryListeners = CollectionsUtil.createWeakSet();
 	}
 
 	public PrologEngineModel(Executor executor, PrologEngine prologEngine) {
@@ -203,6 +207,18 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 	
 	public boolean stopQueries() {
 		return multiQueryModel.stop();
+	}
+
+	public Set<QueryListener> getQueryListeners() {
+		return queryListeners;
+	}
+
+	public void addQueryListener(QueryListener listener) {
+		queryListeners.add(listener);
+	}
+	
+	public void removeQueryListener(QueryListener listener) {
+		queryListeners.remove(listener);
 	}
 
 }

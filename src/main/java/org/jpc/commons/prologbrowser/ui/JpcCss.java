@@ -15,6 +15,7 @@ public class JpcCss {
 	
 	public static final String JPC_QUERY_BROWSER = "jpc-query-browser";
 	public static final String JPC_QUERY_BROWSER_PANE = "jpc-query-browser-pane";
+	public static final String JPC_QUERY_BROWSER_SECTION = "jpc-query-browser-section";
 	public static final String JPC_CONTAINER = "jpc-container";
 	public static final String JPC_SECTION = "jpc-section";
 	public static final String JPC_GRID = "jpc-grid";

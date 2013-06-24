@@ -52,11 +52,7 @@ public class QueryResultPane extends VBox {
 //					tableView.layout();
 //					tableView.requestLayout();
 				}
-				
-				
-				
 			}
-			
 		});
 	}
 
@@ -68,7 +64,6 @@ public class QueryResultPane extends VBox {
 			tableView.getColumns().clear();
 			this.queryResultModel = null;
 		}
-		
 	}
 
 }
