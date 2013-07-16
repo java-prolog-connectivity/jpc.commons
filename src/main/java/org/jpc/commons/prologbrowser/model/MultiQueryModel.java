@@ -4,21 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 
-public class MultiQueryModel implements ListChangeListener<QueryModel> {
+public class MultiQueryModel {
 
 	private ObservableList<QueryModel> queries;
 	private PrologEngineModel prologEngineModel;
-	private BooleanProperty queryInProgress;
 	private IntegerProperty focusedIndex;
 	private Executor executor;
 	
@@ -26,8 +21,6 @@ public class MultiQueryModel implements ListChangeListener<QueryModel> {
 		this.prologEngineModel = prologEngineModel;
 		this.executor = executor;
 		queries = FXCollections.observableArrayList();
-		queries.addListener(this);
-		queryInProgress = new SimpleBooleanProperty(false);
 		focusedIndex = new SimpleIntegerProperty(0);
 	}
 	
@@ -41,38 +34,25 @@ public class MultiQueryModel implements ListChangeListener<QueryModel> {
 		return queries;
 	}
 	
-	public BooleanProperty queryInProgressProperty() {
-		return queryInProgress;
-	}
-	
 	public IntegerProperty focusedIndexProperty() {
 		return focusedIndex;
 	}
 	
-	private void refreshQueryInProgress() {
-		BooleanProperty newQueryInProgress = new SimpleBooleanProperty(false);
-		for(QueryModel query : queries) {
-			BooleanProperty booleanPropertyAux = new SimpleBooleanProperty();
-			booleanPropertyAux.bind(Bindings.or(newQueryInProgress, query.queryInProgressProperty()));
-			newQueryInProgress = booleanPropertyAux;
-		}
-//		if(queryInProgress.isBound())
-//			queryInProgress.unbind(); //not sure if this is really necessary
-		queryInProgress.bind(newQueryInProgress);
-	}
+//	private void refreshQueryInProgress() {
+//		BooleanProperty newQueryInProgress = new SimpleBooleanProperty(false);
+//		for(QueryModel query : queries) {
+//			BooleanProperty booleanPropertyAux = new SimpleBooleanProperty();
+//			booleanPropertyAux.bind(Bindings.or(newQueryInProgress, query.queryInProgressProperty()));
+//			newQueryInProgress = booleanPropertyAux;
+//		}
+//		queryInProgress.bind(newQueryInProgress);
+//	}
 	
-	@Override
-	public void onChanged(javafx.collections.ListChangeListener.Change<? extends QueryModel> change) {
-		refreshQueryInProgress();
-	}
-	
-	/**
-	 * 
-	 * @return true if at least one query is in progress. false otherwise.
-	 */
-	public boolean isQueryInProgress() {
-		return queryInProgress.get();
-	}
+//	@Override
+//	public void onChanged(javafx.collections.ListChangeListener.Change<? extends QueryModel> change) {
+//		refreshQueryInProgress();
+//	}
+
 	
 	/**
 	 * 
@@ -110,6 +90,7 @@ public class MultiQueryModel implements ListChangeListener<QueryModel> {
 		query.forceStop();
 		queries.remove(query);
 	}
+
 	
 }
 

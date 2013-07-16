@@ -1,31 +1,43 @@
 package org.jpc.commons.prologbrowser.model;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import org.jpc.Jpc;
 import org.jpc.engine.listener.PrologEngineLifeCycleListener;
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.PrologEngineProxy;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
+import org.jpc.query.ObservableQuery;
+import org.jpc.query.Query;
 import org.jpc.query.QueryListener;
+import org.jpc.query.QuerySolution;
+import org.jpc.term.Term;
 import org.jpc.util.naming.Nameable;
 import org.minitoolbox.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
 
-public class PrologEngineModel extends PrologEngineProxy implements Nameable {
+public class PrologEngineModel extends PrologEngineProxy implements Nameable, QueryListener  {
 
+	private IntegerProperty numQueriesInProgress;
+	private BooleanProperty queryInProgress;
+	
 	private BooleanProperty ready;
+	private BooleanProperty busy;
 	private BooleanProperty closeable;
 	private BooleanProperty multiThreaded;
 	private StringProperty name;
@@ -37,6 +49,9 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 	private Set<QueryListener> queryListeners;
 
 	public PrologEngineModel(Executor executor) {
+		numQueriesInProgress = new SimpleIntegerProperty(0);
+		queryInProgress = new SimpleBooleanProperty();
+		queryInProgress.bind(numQueriesInProgress.greaterThan(0));
 		ready = new SimpleBooleanProperty(false); //it is not yet available when just initialized
 		closeable = new SimpleBooleanProperty(false);
 		multiThreaded = new SimpleBooleanProperty(false);
@@ -45,6 +60,8 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		this.executor = executor;
 		queryHistory = new SimpleObjectProperty<>(FXCollections.<String>observableArrayList());
 		multiQueryModel = new MultiQueryModel(this, executor);
+		busy = new SimpleBooleanProperty();
+		busy.bind(Bindings.or(Bindings.not(ready), queryInProgressProperty()));
 		queryListeners = CollectionsUtil.createWeakSet();
 	}
 
@@ -56,6 +73,27 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 	public PrologEngineModel(Executor executor, PrologEngine prologEngine, String name) {
 		this(executor, prologEngine);
 		setName(name);
+	}
+
+	
+	@Override
+	public ObservableQuery basicQuery(Term term, boolean errorHandledQuery, Jpc context) {
+		Query observedQuery = super.basicQuery(term, errorHandledQuery, context);
+		ObservableQuery query = new ObservableQuery(observedQuery, getQueryListeners()); //creates an observable query with the default listeners of the Prolog engine
+		query.addQueryListener(this); //also add the PrologEngine as one of the listeners
+		return query;
+	}
+	
+	/**
+	 * 
+	 * @return true if at least one query is in progress. false otherwise.
+	 */
+	public boolean isQueryInProgress() {
+		return queryInProgressProperty().get();
+	}
+	
+	public BooleanProperty queryInProgressProperty() {
+		return queryInProgress;
 	}
 	
 	public MultiQueryModel getMultiQueryModel() {
@@ -90,13 +128,16 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		return startupTime;
 	}
 	
-	
 	public void setReady(boolean b) {
 		ready.set(b);
 	}
 	
 	public boolean isReady() {
 		return ready.get();
+	}
+	
+	public BooleanProperty busyProperty() {
+		return busy;
 	}
 	
 	public BooleanProperty readyProperty() {
@@ -133,7 +174,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		if(!isReady() || !super.isCloseable()) {
 			setCloseable(false);
 		} else {
-			closeable.bind(Bindings.not(multiQueryModel.queryInProgressProperty()));
+			closeable.bind(Bindings.not(queryInProgressProperty()));
 		}
 	}
 	
@@ -192,14 +233,6 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 			listener.onPrologEngineShutdown(this);
 		}
 	}
-
-	public BooleanProperty queryInProgressProperty() {
-		return multiQueryModel.queryInProgressProperty();
-	}
-	
-	public boolean isQueryInProgress() {
-		return multiQueryModel.isQueryInProgress();
-	}
 	
 	public boolean isNonAbortableQueryInProgress() {
 		return multiQueryModel.isNonAbortableQueryInProgress();
@@ -221,4 +254,52 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable {
 		queryListeners.remove(listener);
 	}
 
+	@Override
+	public void onQueryReady() {
+	}
+
+	@Override
+	public void onQueryOpened() {
+	}
+
+	@Override
+	public void onQueryExhausted() {
+	}
+
+	@Override
+	public void onQueryInProgress() {
+		FXUtil.runInFXApplicationThread(new Runnable() {
+			@Override
+			public void run() {
+				numQueriesInProgress.set(numQueriesInProgress.get()+1);
+			}
+		});
+	}
+
+	@Override
+	public void onQueryFinished() {
+		FXUtil.runInFXApplicationThread(new Runnable() {
+			@Override
+			public void run() {
+				numQueriesInProgress.set(numQueriesInProgress.get()-1);
+			}
+		});
+	}
+
+	@Override
+	public void onException(Exception e) {
+	}
+
+	@Override
+	public void onNextSolutionFound(QuerySolution solution) {
+	}
+
+	@Override
+	public void onSolutionsFound(List<QuerySolution> solutions) {
+	}
+
+	@Override
+	public void onQueryDisposed() {
+	}
+	
 }

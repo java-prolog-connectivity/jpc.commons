@@ -22,7 +22,7 @@ public class QueryTab extends Tab {
 	private QueryModel queryModel;
 	private Label titleLabel;
 	private HBox tabHeader;
-	QueryPane singleQueryPane;
+	private QueryPane singleQueryPane;
 	
 	public QueryTab() {
 		this(null);

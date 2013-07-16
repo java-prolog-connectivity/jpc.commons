@@ -8,7 +8,6 @@ import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_PROLOG_ENGINE_ITEM;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_HEIGHT_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PREFERRED_WIDTH_LIST;
 import static org.jpc.commons.prologbrowser.ui.JpcLayout.JPC_PROGRESS_INDICATOR_SIZE;
-import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
@@ -75,9 +74,9 @@ public class PrologEngineChoicePane extends GridPane {
 				ProgressIndicator progress = new ProgressIndicator();
 				progress.managedProperty().bind(progress.visibleProperty()); //so it will not use space when it is not visible
 				progress.setPrefSize(JPC_PROGRESS_INDICATOR_SIZE, JPC_PROGRESS_INDICATOR_SIZE);
-				progress.visibleProperty().bind(Bindings.not(prologEngineModel.readyProperty()));
+				progress.visibleProperty().bind(prologEngineModel.busyProperty());
 				Label prologEngineNameText = new Label(prologEngineModel.getName());
-				pane.getChildren().addAll(progress, prologEngineNameText);
+				pane.getChildren().addAll(prologEngineNameText, progress);
 				pane.getStyleClass().add(JPC_PROLOG_ENGINE_ITEM);
 				setGraphic(pane);
 			}

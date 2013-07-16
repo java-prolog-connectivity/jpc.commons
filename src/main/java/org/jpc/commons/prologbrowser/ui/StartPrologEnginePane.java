@@ -2,7 +2,13 @@ package org.jpc.commons.prologbrowser.ui;
 
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_CSS_FILE_NAME;
 import static org.jpc.commons.prologbrowser.ui.JpcCss.JPC_IMAGE_BUTTON;
+
+import java.util.concurrent.Executor;
+
+import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
@@ -14,6 +20,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
+import org.minitoolbox.fx.FXUtil;
 
 public class StartPrologEnginePane extends HBox {
 
@@ -34,7 +41,6 @@ public class StartPrologEnginePane extends HBox {
 			}
 		});
 		getChildren().addAll(startEngineButton);
-
 		style();
 	}
 	
@@ -42,6 +48,5 @@ public class StartPrologEnginePane extends HBox {
 		startEngineButton.getStyleClass().add(JPC_IMAGE_BUTTON);
 		getStylesheets().add(JpcCss.class.getResource(JPC_CSS_FILE_NAME).toExternalForm());
 	}
-
 
 }

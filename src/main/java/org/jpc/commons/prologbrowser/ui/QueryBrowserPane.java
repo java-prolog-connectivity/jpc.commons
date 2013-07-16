@@ -22,6 +22,7 @@ import javafx.scene.layout.VBox;
 
 import org.jpc.commons.prologbrowser.model.PrologDriverModel;
 import org.jpc.commons.prologbrowser.model.PrologEngineOrganizer;
+import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.query.QueryListener;
 import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
@@ -84,7 +85,7 @@ public class QueryBrowserPane extends VBox {
 		querySection.getChildren().addAll(queryTitle, queryPane);
 		querySection.managedProperty().bind(querySection.visibleProperty());
 		
-		getChildren().addAll(logicConsoleSection, settingsSection, querySection);
+		getChildren().addAll(settingsSection, logicConsoleSection, querySection);
 		setFocusTraversable(true);
 		requestFocus();
 		style();
@@ -122,8 +123,6 @@ public class QueryBrowserPane extends VBox {
 		return executor;
 	}
 
-
-
 	private void togglePaneWhenHyperlinkClicked(final Pane pane, Hyperlink hyperlink) {
 		pane.managedProperty().bind(pane.visibleProperty());
 		hyperlink.setOnAction(new EventHandler<ActionEvent>() {
@@ -134,6 +133,10 @@ public class QueryBrowserPane extends VBox {
         });
 	}
 
+	public PrologEngine getCurrentPrologEngine() {
+		return getLogicConsolePane().getPrologEngineChoiceModel().getPrologEngine();
+	}
+	
 	public void stop() {
 		PrologEngineOrganizer organizer = logicConsolePane.getPrologEngineOrganizer();
 //		if(organizer.nonAbortableQueriesInProgress())

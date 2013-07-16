@@ -1,6 +1,5 @@
 package org.jpc.commons.prologbrowser.model;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -389,14 +388,14 @@ public class QueryModel implements QueryListener {
 		Query observedQuery = null;
 		try {
 			observedQuery = prologEngineModel.query(text);
+			//query = prologEngineModel.query(text);
 		} catch(PrologParsingException e) {
-			//notifyException(e);
 			onException(e);
 			return false;
 		}
-		Set<QueryListener> allListeners = new HashSet<>(prologEngineModel.getQueryListeners()); //engine listeners
-		allListeners.addAll(listeners); //query specific listeners
-		query = new ObservableQuery(observedQuery, allListeners);
+		//query = prologEngineModel.observe(observedQuery);
+		query = new ObservableQuery(observedQuery);
+		query.addQueryListeners(listeners); //query specific listeners
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {

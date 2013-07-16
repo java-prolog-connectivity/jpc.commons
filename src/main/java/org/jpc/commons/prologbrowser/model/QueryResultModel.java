@@ -75,13 +75,17 @@ public class QueryResultModel {
 	                            @Override
 	                            public String toString(Object o) {
 	                            	TableRow row = tableCell.getTableRow();
-	    	                    	final int index = row.getIndex();
-	                            	Term term = (Term) o;
-	                            	QuerySolution querySolution = queryResult.get(index);
-	                            	OperatorsContext oc = querySolution.getOperatorsContext();
-	                            	if(oc==null)
-	                            		throw new RuntimeException("Operators Context not available");
-	                                return term.toString(oc);
+	                            	if(row != null) {
+	                            		final int index = row.getIndex();
+		                            	Term term = (Term) o;
+		                            	QuerySolution querySolution = queryResult.get(index);
+		                            	OperatorsContext oc = querySolution.getOperatorsContext();
+		                            	if(oc==null)
+		                            		throw new RuntimeException("Operators Context not available");
+		                                return term.toString(oc);
+	                            	} else
+	                            		return "";
+	    	                    	
 	                            }
 	                            @Override
 	                            public Object fromString(String string) {

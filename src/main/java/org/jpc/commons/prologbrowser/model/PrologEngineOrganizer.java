@@ -190,7 +190,7 @@ public class PrologEngineOrganizer implements PrologEngineFactory<PrologEngine>,
 		return prologEngineModel;
 	}
 
-	public void addPrologEngine(PrologDriverModel driver, PrologEngineModel prologEngineModel) {
+	public void addPrologEngine(final PrologDriverModel driver, final PrologEngineModel prologEngineModel) {
 		getPrologEnginesForDriver(driver).add(prologEngineModel);
 	}
 	
