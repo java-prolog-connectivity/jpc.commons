@@ -21,7 +21,7 @@ import org.jpc.error.PrologParsingException;
 import org.jpc.query.ObservableQuery;
 import org.jpc.query.Query;
 import org.jpc.query.QueryListener;
-import org.jpc.query.QuerySolution;
+import org.jpc.query.Solution;
 import org.minitoolbox.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
@@ -486,7 +486,7 @@ public class QueryModel implements QueryListener {
 	}
 	
 	@Override
-	public void onNextSolutionFound(final QuerySolution solution) {
+	public void onNextSolutionFound(final Solution solution) {
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {
@@ -499,7 +499,7 @@ public class QueryModel implements QueryListener {
 	}
 
 	@Override
-	public void onSolutionsFound(final List<QuerySolution> solutions) {
+	public void onSolutionsFound(final List<Solution> solutions) {
 		FXUtil.runInFXApplicationThread(new Runnable() {
 			@Override
 			public void run() {

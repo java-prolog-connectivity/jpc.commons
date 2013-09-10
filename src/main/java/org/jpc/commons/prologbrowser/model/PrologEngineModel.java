@@ -25,7 +25,7 @@ import org.jpc.engine.prolog.driver.PrologEngineFactory;
 import org.jpc.query.ObservableQuery;
 import org.jpc.query.Query;
 import org.jpc.query.QueryListener;
-import org.jpc.query.QuerySolution;
+import org.jpc.query.Solution;
 import org.jpc.term.Term;
 import org.jpc.util.naming.Nameable;
 import org.minitoolbox.CollectionsUtil;
@@ -291,11 +291,11 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable, Qu
 	}
 
 	@Override
-	public void onNextSolutionFound(QuerySolution solution) {
+	public void onNextSolutionFound(Solution solution) {
 	}
 
 	@Override
-	public void onSolutionsFound(List<QuerySolution> solutions) {
+	public void onSolutionsFound(List<Solution> solutions) {
 	}
 
 	@Override

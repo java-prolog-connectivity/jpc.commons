@@ -14,14 +14,14 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import org.jpc.engine.prolog.OperatorsContext;
-import org.jpc.query.QuerySolution;
+import org.jpc.query.Solution;
 import org.jpc.term.Term;
 
 public class QueryResultModel {
 
 	private Term goal;
 	private ObservableList<TableColumn<Map<String, Term>,?>> columns;
-	private ObservableList<QuerySolution> queryResult;
+	private ObservableList<Solution> queryResult;
 	
 	public QueryResultModel() {
 		columns = FXCollections.observableArrayList();
@@ -54,7 +54,7 @@ public class QueryResultModel {
 		return columns;
 	}
 	
-	public ObservableList<QuerySolution> getQueryResult() {
+	public ObservableList<Solution> getQueryResult() {
 		return queryResult;
 	}
 	
@@ -78,7 +78,7 @@ public class QueryResultModel {
 	                            	if(row != null) {
 	                            		final int index = row.getIndex();
 		                            	Term term = (Term) o;
-		                            	QuerySolution querySolution = queryResult.get(index);
+		                            	Solution querySolution = queryResult.get(index);
 		                            	OperatorsContext oc = querySolution.getOperatorsContext();
 		                            	if(oc==null)
 		                            		throw new RuntimeException("Operators Context not available");
