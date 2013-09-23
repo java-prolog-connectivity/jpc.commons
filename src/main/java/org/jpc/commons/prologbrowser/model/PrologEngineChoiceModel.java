@@ -11,7 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.MultipleSelectionModel;
 
 import org.jpc.engine.provider.PrologEngineProvider;
-import org.minitoolbox.CollectionsUtil;
+import org.minitoolbox.collections.CollectionsUtil;
 
 public class PrologEngineChoiceModel implements PrologEngineProvider<PrologEngineModel> {
 

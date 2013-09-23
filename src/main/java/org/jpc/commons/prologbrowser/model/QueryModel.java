@@ -22,7 +22,7 @@ import org.jpc.query.ObservableQuery;
 import org.jpc.query.Query;
 import org.jpc.query.QueryListener;
 import org.jpc.query.Solution;
-import org.minitoolbox.CollectionsUtil;
+import org.minitoolbox.collections.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

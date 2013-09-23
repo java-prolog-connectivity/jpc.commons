@@ -28,7 +28,7 @@ import org.jpc.query.QueryListener;
 import org.jpc.query.Solution;
 import org.jpc.term.Term;
 import org.jpc.util.naming.Nameable;
-import org.minitoolbox.CollectionsUtil;
+import org.minitoolbox.collections.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
 
 public class PrologEngineModel extends PrologEngineProxy implements Nameable, QueryListener  {
