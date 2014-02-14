@@ -32,7 +32,7 @@ public class QueryResultModel {
 		if(goal == null)
 			return null;
 		else
-			return goal.getNonAnonymousVariablesNames();
+			return goal.getNonUnderscoreVariableNames();
 	}
 	
 	public Term getGoal() {
