@@ -34,7 +34,7 @@ public class JpcCss {
 	public static final String JPC_FOOTER = "jpc-footer";
 	
 	public static final String ABOUT_DRIVER_FOOTER_LINK = "jpc-about-driver-footer-link";
-	public static final String DRIVER_NAME_LABEL = "jpc-driver-name-label";
+	public static final String DRIVER_NAME_LABEL = "jpc-driver-id-label";
 	public static final String DRIVER_DESCRIPTION_LABEL = "jpc-driver-description-label";
 	
 	public static final String JPC_QUERY_BROWSER_LAUNCHER = "jpc-query-browser-launcher";

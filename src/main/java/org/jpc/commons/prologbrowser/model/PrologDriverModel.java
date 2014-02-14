@@ -17,7 +17,7 @@ public class PrologDriverModel<T extends PrologEngine> extends PrologEngineDrive
 	
 	/**
 	 * Answers an ordered list of drivers.
-	 * The ordering criteria are the driver engine name, the driver bridge library name and the driver name (in that order).
+	 * The ordering criteria are the driver engine id, the driver bridge library id and the driver id (in that order).
 	 * @param drivers the drivers to order
 	 * @return an ordered list of drivers
 	 */

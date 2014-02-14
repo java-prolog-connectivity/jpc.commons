@@ -122,7 +122,7 @@ public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<Prol
 		}
 		Collection<PrologDriverModel> drivers = libraryNamesToDriverMultimap.get(driver.getLibraryName());
 		if(findDriverByName(drivers, driver.getName()) != null) {
-			logger.warn("A driver with name " + driver.getName() + " for the " + driver.getEngineDescription().getName() + " Prolog engine already exists.");
+			logger.warn("A driver with id " + driver.getName() + " for the " + driver.getEngineDescription().getName() + " Prolog engine already exists.");
 			return false;
 		} else { //this ugly code needs to be revisited
 			drivers.add(driver);
