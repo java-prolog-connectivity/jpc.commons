@@ -24,9 +24,9 @@ import org.jpc.engine.provider.PrologEngineFactoryProvider;
 import org.jpc.util.DriverUtil;
 import org.jpc.util.DriverUtil.PrologEngineDriverComparator;
 import org.jpc.util.DriverUtil.PrologEngineTypeComparator;
-import org.jpc.util.naming.NamingUtil;
 import org.minitoolbox.collections.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
+import org.minitoolbox.naming.NamingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

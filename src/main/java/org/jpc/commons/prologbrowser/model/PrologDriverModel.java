@@ -7,7 +7,7 @@ import java.util.List;
 import org.jpc.engine.prolog.PrologEngine;
 import org.jpc.engine.prolog.driver.PrologEngineDriver;
 import org.jpc.engine.prolog.driver.PrologEngineDriverProxy;
-import org.jpc.util.naming.Nameable;
+import org.minitoolbox.naming.Nameable;
 
 import com.google.common.collect.Lists;
 
