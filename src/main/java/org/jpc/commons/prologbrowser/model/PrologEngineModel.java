@@ -30,6 +30,7 @@ import org.jpc.term.Term;
 import org.minitoolbox.collections.CollectionsUtil;
 import org.minitoolbox.fx.FXUtil;
 import org.minitoolbox.naming.Nameable;
+import static org.jpc.engine.prolog.ThreadModel.MULTI_THREADED;
 
 public class PrologEngineModel extends PrologEngineProxy implements Nameable, QueryListener  {
 
@@ -108,7 +109,7 @@ public class PrologEngineModel extends PrologEngineProxy implements Nameable, Qu
 			@Override
 			public void run() {
 				ready.set(true);
-				multiThreaded.set(PrologEngineModel.super.isMultiThreaded());
+				multiThreaded.set(PrologEngineModel.super.threadModel().equals(MULTI_THREADED));
 				refreshCloseable();
 				notifyOnCreation();
 			}
