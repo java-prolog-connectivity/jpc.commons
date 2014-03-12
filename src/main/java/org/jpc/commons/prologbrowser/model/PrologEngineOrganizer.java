@@ -17,10 +17,11 @@ import javafx.scene.control.MultipleSelectionModel;
 import org.jpc.engine.listener.PrologEngineLifeCycleListener;
 import org.jpc.engine.profile.PrologEngineProfileFactory;
 import org.jpc.engine.prolog.PrologEngine;
+import org.jpc.engine.prolog.driver.PrologEngineDriver;
 import org.jpc.engine.prolog.driver.PrologEngineFactory;
 import org.jpc.query.QueryListener;
-import org.jpc.util.naming.NamingUtil;
 import org.minitoolbox.fx.FXUtil;
+import org.minitoolbox.naming.NamingUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,9 +204,9 @@ public class PrologEngineOrganizer implements PrologEngineFactory<PrologEngine>,
 	}
 */
 	
-	@Override
+	//@Override
 	public boolean isDisabled() {
-		PrologEngineFactory factory = getPrologEngineDriver();
+		PrologEngineDriver factory = getPrologEngineDriver();
 		if(factory == null || factory.isDisabled())
 			return true;
 		else
