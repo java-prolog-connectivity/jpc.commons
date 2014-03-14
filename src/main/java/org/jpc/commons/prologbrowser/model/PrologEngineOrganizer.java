@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PrologEngineOrganizer implements PrologEngineFactory<PrologEngine>, PrologEngineFactoryInvalidatedListener, PrologEngineLifeCycleListener {
 
-	private static Logger logger = LoggerFactory.getLogger(PrologEngineOrganizer.class);
+	private static final Logger logger = LoggerFactory.getLogger(PrologEngineOrganizer.class);
 	
 	private Map<PrologEngineFactory, ObservableList<PrologEngineModel>> driverMap; //a map from drivers to active Prolog engines
 	private PrologDriverChoiceModel driverProvider; //knows the selected driver

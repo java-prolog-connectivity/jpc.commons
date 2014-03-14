@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 public class QueryModel implements QueryListener {
 
-	private static Logger logger = LoggerFactory.getLogger(QueryModel.class);
+	private static final Logger logger = LoggerFactory.getLogger(QueryModel.class);
 	
 	//private File file; //a file in the file system where this query is persisted
 	private Set<QueryListener> listeners;

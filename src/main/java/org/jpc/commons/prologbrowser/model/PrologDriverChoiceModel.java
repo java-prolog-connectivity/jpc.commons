@@ -40,7 +40,7 @@ import com.google.common.collect.TreeMultimap;
  */
 public class PrologDriverChoiceModel implements PrologEngineFactoryProvider<PrologEngine>, DriverStateListener {
 
-	private static Logger logger = LoggerFactory.getLogger(PrologDriverChoiceModel.class);
+	private static final Logger logger = LoggerFactory.getLogger(PrologDriverChoiceModel.class);
 	
 	private Map<String, Integer> nameOccurrences;
 	

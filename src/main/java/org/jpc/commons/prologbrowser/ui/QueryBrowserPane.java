@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QueryBrowserPane extends VBox {
 
-	private static Logger logger = LoggerFactory.getLogger(QueryBrowserPane.class);
+	private static final Logger logger = LoggerFactory.getLogger(QueryBrowserPane.class);
 	
 	private VBox logicConsoleSection;
 	private Hyperlink logicConsoleTitle;
