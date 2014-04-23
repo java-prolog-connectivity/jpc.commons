@@ -465,7 +465,7 @@ public class QueryPane extends VBox {
 //		for(File file : files) {
 //			filesNames.add("'" + file.getAbsolutePath() + "'");
 //		}
-//		return Joiner.on(", ").join(filesNames);
+//		return TermJoiner.on(", ").join(filesNames);
 //	}
 	
 	private void style() {
