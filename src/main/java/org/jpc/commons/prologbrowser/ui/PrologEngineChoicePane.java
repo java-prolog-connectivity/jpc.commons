@@ -80,7 +80,7 @@ public class PrologEngineChoicePane extends GridPane {
 				pane.getStyleClass().add(JPC_PROLOG_ENGINE_ITEM);
 				setGraphic(pane);
 			}
-			//setText(prologEngineModel == null ? "" : prologEngineModel.getName());
+			//setText(prologEngineModel == null ? "" : prologEngineModel.getNameTerm());
 		}
 	}
 

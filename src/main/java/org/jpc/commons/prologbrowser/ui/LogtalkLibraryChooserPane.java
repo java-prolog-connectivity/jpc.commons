@@ -131,7 +131,7 @@ public class LogtalkLibraryChooserPane extends VBox {
 				//setGraphic(null);
 			} else {
 				setText(logtalkLibraryNode.getName());
-//				Label label = new Label(logtalkLibraryNode.getName());
+//				Label label = new Label(logtalkLibraryNode.getNameTerm());
 //				HBox hBox = new HBox();
 //				hBox.getChildren().add(label);
 //				setGraphic(hBox);

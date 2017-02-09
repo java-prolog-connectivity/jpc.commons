@@ -38,8 +38,8 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import org.jpc.commons.prologbrowser.model.QueryModel;
 import org.jpc.engine.logtalk.LogtalkLibrary;
 import org.jpc.engine.logtalk.LogtalkLibraryItem;
-import org.jpc.resource.LogicResource;
-import org.jpc.resource.LogtalkResource;
+import org.jpc.util.resource.LogicResource;
+import org.jpc.util.resource.LogtalkResource;
 import org.minitoolbox.fx.FXUtil;
 
 import com.google.common.base.Joiner;

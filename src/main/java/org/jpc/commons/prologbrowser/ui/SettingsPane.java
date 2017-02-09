@@ -19,7 +19,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 
 import org.jpc.commons.prologbrowser.model.SettingsModel;
-import org.jpc.resource.LogicResource;
+import org.jpc.util.resource.LogicResource;
 import org.minitoolbox.fx.FXUtil;
 
 public class SettingsPane extends VBox {
